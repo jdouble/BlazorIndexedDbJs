@@ -88,23 +88,35 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async void AddRecord()
         {
-            var newRecord = new StoreRecord<Person>
+            if (CurrentPerson.Id.HasValue)
             {
-                Storename = DbStoreConfig.Employees,
-                Data = CurrentPerson
-            };
-
-
-            if (newRecord.Data.Id.HasValue)
-            {
-                await DbManager.UpdateRecord(newRecord);
+                await DbManager.UpdateRecord(DbStoreConfig.Employees, CurrentPerson);
             }
             else
             {
-                await DbManager.AddRecord(newRecord);
+                await DbManager.AddRecord(DbStoreConfig.Employees, CurrentPerson);
             }
 
             CurrentPerson = new Person();
+
+            await GetRecords();
+        }
+
+        private async void AddRecords()
+        {
+            var list = new List<Person>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                var person = new Person() {
+                    FirstName = "person "+i.ToString(),
+                    LastName = "lastname "+i.ToString()
+                };
+
+                list.Add(person);
+            }
+
+            await DbManager.AddRecords<Person>(DbStoreConfig.Employees, list.ToArray());
 
             await GetRecords();
         }
@@ -131,6 +143,8 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
         {
             Message = args.Message;
+
+            StateHasChanged();
         }
     }
 }

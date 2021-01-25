@@ -6,8 +6,11 @@
     <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
 </div>
 
-<div class="d-flex">
-    <button class="btn btn-outline-primary mt-4" @onclick="ClearStore">Clear Store</button>
+<div class="d-flex flex-row">
+    <div class="d-flex flex-column">
+        <button class="btn btn-outline-primary mt-4" @onclick="AddRecords">Add 100 records</button>
+        <button class="btn btn-outline-primary mt-4" @onclick="ClearStore">Clear Store</button>
+    </div>
 </div>
 
 <div class="d-flex mt-4">

@@ -1,21 +1,16 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from '../node_modules/idb/lib/idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from '../node_modules/idb/lib/idb';
-import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper, IDbInformation } from './InteropInterfaces';
+import { IDbStore, IIndexSearch, IIndexSpec, IStoreSchema, IDotNetInstanceWrapper, IDbInformation } from './InteropInterfaces';
 
 export class IndexedDbManager {
 
-    private dbInstance:any = undefined;
-    private dotnetCallback = (message: string) => { };
+    private dbInstance: any = undefined;
 
     constructor() { }
 
     public openDb = async (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
         const dbStore = data;
-        //just a test for the moment
-        this.dotnetCallback = (message: string) => {
-            instanceWrapper.instance.invokeMethodAsync(instanceWrapper.methodName, message);
-        }
 
         try {
             if (!this.dbInstance || this.dbInstance.version < dbStore.version) {
@@ -29,7 +24,7 @@ export class IndexedDbManager {
         } catch (e) {
             this.dbInstance = await idb.open(dbStore.dbName);
         }
-        
+
         return `IndexedDB ${data.dbName} opened`;
     }
 
@@ -65,26 +60,53 @@ export class IndexedDbManager {
         return `The database ${dbName} has been deleted`;
     }
 
-    public addRecord = async (record: IStoreRecord): Promise<string> => {
-        const stName = record.storename;
-        let itemToSave = record.data;
-        const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
-        const objectStore = tx.objectStore(stName);
+    public addRecord = async (storename: string, data: any, key?: any): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+        const objectStore = tx.objectStore(storename);
 
-        itemToSave = this.checkForKeyPath(objectStore, itemToSave);
+        data = this.checkForKeyPath(objectStore, data);
 
-        const result = await objectStore.add(itemToSave, record.key);
+        const result = await objectStore.add(data, key);
+
+        await tx.complete;
 
         return `Added new record with id ${result}`;
     }
 
-    public updateRecord = async (record: IStoreRecord): Promise<string> => {
-        const stName = record.storename;
-        const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
+    public addRecords = async (storename: string, data: any[]): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+        const objectStore = tx.objectStore(storename);
 
-        const result = await tx.objectStore(stName).put(record.data, record.key);
-       
+        data.forEach(async element => {
+            let item = this.checkForKeyPath(objectStore, element);
+            await objectStore.add(item);
+        });
+
+        await tx.complete;
+
+        return `Added ${data.length} records`;
+    }
+
+    public updateRecord = async (storename: string, data: any, key?: any): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+
+        const result = await tx.objectStore(storename).put(data, key);
+
+        await tx.complete;
+
         return `updated record with id ${result}`;
+    }
+
+    public updateRecords = async (storename: string, data: any[]): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+
+        data.forEach(async element => {
+            await tx.objectStore(storename).put(element);
+        });
+
+        await tx.complete;
+
+        return `updated ${data.length} records`;
     }
 
     public getRecords = async (storeName: string): Promise<any> => {
@@ -98,10 +120,10 @@ export class IndexedDbManager {
     }
 
     public clearStore = async (storeName: string): Promise<string> => {
-        
         const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
 
         await tx.objectStore(storeName).clear();
+
         await tx.complete;
 
         return `Store ${storeName} cleared`;
@@ -109,16 +131,19 @@ export class IndexedDbManager {
 
     public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, searchData.storename, 'readonly');
+
         const results = await tx.objectStore(searchData.storename)
             .index(searchData.indexName)
             .get(searchData.queryValue);
 
         await tx.complete;
+
         return results;
     }
 
     public getAllRecordsByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, searchData.storename, 'readonly');
+
         let results: any[] = [];
 
         tx.objectStore(searchData.storename)
@@ -145,6 +170,9 @@ export class IndexedDbManager {
         const tx = this.getTransaction(this.dbInstance, storename, 'readonly');
 
         let result = await tx.objectStore(storename).get(id);
+
+        await tx.complete;
+
         return result;
     }
 
@@ -153,7 +181,21 @@ export class IndexedDbManager {
 
         await tx.objectStore(storename).delete(id);
 
+        await tx.complete;
+
         return `Record with id: ${id} deleted`;
+    }
+
+    public deleteRecords = async (storename: string, ids: any[]): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+
+        ids.forEach(async element => {
+            await tx.objectStore(storename).delete(element);
+        });
+
+        await tx.complete;
+
+        return `Deleted ${ids.length} records`;
     }
 
     private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
@@ -165,7 +207,7 @@ export class IndexedDbManager {
                 } else {
                     console.error('Undefined error in getTransaction()');
                 }
-                
+
             });
 
         return tx;
@@ -195,7 +237,6 @@ export class IndexedDbManager {
                 for (var store of dbStore.stores) {
                     if (!upgradeDB.objectStoreNames.contains(store.name)) {
                         this.addNewStore(upgradeDB, store);
-                        this.dotnetCallback(`store added ${store.name}: db version: ${dbStore.version}`);
                     }
                 }
             }

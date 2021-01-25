@@ -115,15 +115,37 @@ namespace BlazorIndexedDbJs
         /// <summary>
         /// Adds a new record/object to the specified store
         /// </summary>
+        /// <param name="storeName"></param>
+        /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
-        /// <param name="recordToAdd">An instance of StoreRecord that provides the store name and the data to add</param>
         /// <returns></returns>
-        public async Task AddRecord<T>(StoreRecord<T> recordToAdd)
+        public async Task AddRecord<T>(string storeName, T data)
         {
             await EnsureDbOpen();
             try
             {
-                var result = await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
+                var result = await CallJavascript<string>(DbFunctions.AddRecord, storeName, data);
+                RaiseNotification(IndexDBActionOutCome.Successful, result);
+            }
+            catch (JSException e)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Add an array of new record/object in one transaction to the specified store
+        /// </summary>
+        /// <param name="storeName"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public async Task AddRecords<T>(string storeName, T[] data)
+        {
+            await EnsureDbOpen();
+            try
+            {
+                var result = await CallJavascript<string>(DbFunctions.AddRecords, storeName, data);
                 RaiseNotification(IndexDBActionOutCome.Successful, result);
             }
             catch (JSException e)
@@ -138,12 +160,26 @@ namespace BlazorIndexedDbJs
         /// <typeparam name="T"></typeparam>
         /// <param name="recordToUpdate">An instance of StoreRecord with the store name and the record to update</param>
         /// <returns></returns>
-        public async Task UpdateRecord<T>(StoreRecord<T> recordToUpdate)
+        public async Task UpdateRecord<T>(string storeName, T data)
         {
             await EnsureDbOpen();
             try
             {
-                var result = await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
+                var result = await CallJavascript<string>(DbFunctions.UpdateRecord, storeName, data);
+                RaiseNotification(IndexDBActionOutCome.Successful, result);
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+            }
+        }
+
+        public async Task UpdateRecords<T>(string storeName, T[] data)
+        {
+            await EnsureDbOpen();
+            try
+            {
+                var result = await CallJavascript<string>(DbFunctions.UpdateRecords, storeName, data);
                 RaiseNotification(IndexDBActionOutCome.Successful, result);
             }
             catch (JSException jse)
@@ -212,10 +248,32 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task DeleteRecord<TInput>(string storeName, TInput id)
         {
+            await EnsureDbOpen();
             try
             {
-                await CallJavascript<string>(DbFunctions.DeleteRecord, storeName, id);
-                RaiseNotification(IndexDBActionOutCome.Deleted, $"Deleted from {storeName} record: {id}");
+                var result = await CallJavascript<string>(DbFunctions.DeleteRecord, storeName, id);
+                RaiseNotification(IndexDBActionOutCome.Successful, result);
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+            }
+        }
+
+        /// <summary>
+        /// Delete multiple records from the store based on the id
+        /// </summary>
+        /// <param name="storeName"></param>
+        /// <param name="id"></param>
+        /// <typeparam name="TInput"></typeparam>
+        /// <returns></returns>
+        public async Task DeleteRecords<TInput>(string storeName, TInput[] ids)
+        {
+            await EnsureDbOpen();
+            try
+            {
+                var result = await CallJavascript<string>(DbFunctions.DeleteRecords, storeName, ids);
+                RaiseNotification(IndexDBActionOutCome.Successful, result);
             }
             catch (JSException jse)
             {
@@ -278,12 +336,12 @@ namespace BlazorIndexedDbJs
         /// <typeparam name="TResult"></typeparam>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
-        public async Task<IList<TResult>> GetAllRecordsByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
+        public async Task<List<TResult>> GetAllRecordsByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
         {
             await EnsureDbOpen();
             try
             {
-                var results = await CallJavascript<StoreIndexQuery<TInput>, IList<TResult>>(DbFunctions.GetAllRecordsByIndex, searchQuery);
+                var results = await CallJavascript<StoreIndexQuery<TInput>, List<TResult>>(DbFunctions.GetAllRecordsByIndex, searchQuery);
                 RaiseNotification(IndexDBActionOutCome.Successful,
                     $"Retrieved {results.Count} records, for {searchQuery.QueryValue} on index {searchQuery.IndexName}");
                 return results;
@@ -293,12 +351,6 @@ namespace BlazorIndexedDbJs
                 RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
                 return default;
             }
-        }
-
-        [JSInvokable("Callback")]
-        public void CalledFromJS(string message)
-        {
-            Console.WriteLine($"called from JS: {message}");
         }
 
         private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)

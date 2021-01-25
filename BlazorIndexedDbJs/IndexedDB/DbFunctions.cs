@@ -8,10 +8,13 @@
         public const string CreateDb = "createDb";
         public const string DeleteDb = "deleteDb";
         public const string AddRecord = "addRecord";
+        public const string AddRecords = "addRecords";
         public const string UpdateRecord = "updateRecord";
+        public const string UpdateRecords = "updateRecords";
         public const string GetRecords = "getRecords";
         public const string OpenDb = "openDb";
         public const string DeleteRecord = "deleteRecord";
+        public const string DeleteRecords = "deleteRecords";
         public const string GetRecordById = "getRecordById";
         public const string ClearStore = "clearStore";
         public const string GetRecordByIndex = "getRecordByIndex";
