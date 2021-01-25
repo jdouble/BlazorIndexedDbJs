@@ -127,31 +127,31 @@ export class IndexedDbManager {
         return `Store ${storeName} cleared`;
     }
 
-    public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, searchData.storeName, 'readonly');
+    public getRecordByIndex = async (storeName: string, indexName: string, queryValue: any): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
-        const results = await tx.objectStore(searchData.storeName)
-            .index(searchData.indexName)
-            .get(searchData.queryValue);
+        const results = await tx.objectStore(storeName)
+            .index(indexName)
+            .get(queryValue);
 
         await tx.complete;
 
         return results;
     }
 
-    public getAllRecordsByIndex = async (searchData: IIndexSearch): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, searchData.storeName, 'readonly');
+    public getAllRecordsByIndex = async (storeName: string, indexName: string, queryValue: any): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
         let results: any[] = [];
 
-        tx.objectStore(searchData.storeName)
-            .index(searchData.indexName)
+        tx.objectStore(storeName)
+            .index(indexName)
             .iterateCursor(cursor => {
                 if (!cursor) {
                     return;
                 }
 
-                if (cursor.key === searchData.queryValue) {
+                if (cursor.key === queryValue) {
                     results.push(cursor.value);
                 }
 

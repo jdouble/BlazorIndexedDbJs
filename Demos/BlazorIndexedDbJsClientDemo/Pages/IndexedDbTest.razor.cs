@@ -46,14 +46,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             }
             else
             {
-                var indexSearch = new StoreIndexQuery<string>
-                {
-                    Storename = TheFactoryDb.Employees,
-                    IndexName = "firstName",
-                    QueryValue = firstName,
-                };
-
-                results = await DbManager.GetAllRecordsByIndex<string, Person>(indexSearch);
+                results = await DbManager.GetAllRecordsByIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
             }
 
 

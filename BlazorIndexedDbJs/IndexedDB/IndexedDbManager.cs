@@ -332,13 +332,13 @@ namespace BlazorIndexedDbJs
         /// <typeparam name="TResult"></typeparam>
         /// <param name="searchQuery">an instance of StoreIndexQuery</param>
         /// <returns></returns>
-        public async Task<TResult> GetRecordByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
+        public async Task<TResult> GetRecordByIndex<TInput, TResult>(string storeName, string indexName, TInput queryValue)
         {
             await EnsureDbOpen();
 
             try
             {
-                var result = await CallJavascript<StoreIndexQuery<TInput>, TResult>(DbFunctions.GetRecordByIndex, searchQuery);
+                var result = await CallJavascript<TResult>(DbFunctions.GetRecordByIndex, storeName, indexName, queryValue);
                 return result;
             }
             catch (JSException jse)
@@ -355,14 +355,14 @@ namespace BlazorIndexedDbJs
         /// <typeparam name="TResult"></typeparam>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
-        public async Task<List<TResult>> GetAllRecordsByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
+        public async Task<List<TResult>> GetAllRecordsByIndex<TInput, TResult>(string storeName, string indexName, TInput queryValue)
         {
             await EnsureDbOpen();
             try
             {
-                var results = await CallJavascript<StoreIndexQuery<TInput>, List<TResult>>(DbFunctions.GetAllRecordsByIndex, searchQuery);
+                var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllRecordsByIndex, storeName, indexName, queryValue);
                 RaiseNotification(IndexedDbActionOutCome.Successful,
-                    $"Retrieved {results.Count} records, for {searchQuery.QueryValue} on index {searchQuery.IndexName}");
+                    $"Retrieved {results.Count} records, for {queryValue} on index {indexName}");
                 return results;
             }
             catch (JSException jse)
