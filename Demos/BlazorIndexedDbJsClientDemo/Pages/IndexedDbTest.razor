@@ -1,0 +1,53 @@
+﻿@page "/indexeddb"
+
+<div>
+    <p><b>status:</b> @Message</p>
+    <p><b>Db version:</b> @DbManager.CurrentVersion</p>
+    <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
+</div>
+
+<div class="d-flex">
+    <button class="btn btn-outline-primary mt-4" @onclick="ClearStore">Clear Store</button>
+</div>
+
+<div class="d-flex mt-4">
+    <div class="border d-flex flex-column">
+        <div class="m-4">
+            <label>First Name</label> <input id="searchFirstName" type="text" @bind="@SearchFirstName" />
+        </div>
+        <button class="btn btn-primary m-4" @onclick="SearchRecords">Search</button>
+    </div>
+</div>
+
+<div class="d-flex mt-4">
+    <div class="border d-flex flex-column">
+        <div class="m-4">
+            <label>First Name</label> <input id="firstName" type="text" @bind="@CurrentPerson.FirstName" />
+        </div>
+        <div class="m-4">
+            <label>Last Name</label> <input id="lastName" type="text" @bind="@CurrentPerson.LastName" />
+        </div>
+
+        <button class="btn btn-primary m-4" @onclick="AddRecord">Add/Update Record</button>
+    </div>
+</div>
+
+<div class="d-flex flex-row flex-wrap mt-4">
+
+    @foreach (var person in People)
+    {
+
+        <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
+            <p>Id: @person.Id</p>
+            <p>First Name: @person.FirstName</p>
+            <p>Last Name: @person.LastName</p>
+            <div>
+                <button class="btn btn-outline-primary" @onclick="(() => EditPerson(person.Id.Value))">Edit</button>
+                <button class="btn btn-outline-warning" @onclick="(() => DeleteRecord(person.Id.Value))">Delete</button>
+            </div>
+        </div>
+
+    }
+
+</div>
+

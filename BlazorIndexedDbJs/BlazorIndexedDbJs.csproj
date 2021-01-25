@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
+    <AssemblyName>BlazorIndexedDbJs</AssemblyName>
+    <RootNamespace>BlazorIndexedDbJs</RootNamespace>
+    <Version>2.0.0</Version>
+    <Authors>William Tulloch, Christian Pradelli</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/kattunga/BlazorIndexedDbJs</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <Description>A Blazor library for interacting with IndexedDB using jsInterop. This library is a fork of https://github.com/wtulloch/Blazor.IndexedDB with some improvements</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="package.json" />
+    <Content Remove="tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WebpackInputs Include="**\*.ts" Exclude="wwwroot\**;node_modules\**; **\*.d.ts" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="IndexedDB\" />
+    <Folder Include="client\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="package.json" />
+    <None Include="tsconfig.json" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.2" />
+  </ItemGroup>
+
+  <Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
+    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+    <Exec Command="npm install" />
+  </Target>
+
+  <Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\indexedDb.Blazor.js" DependsOnTargets="EnsureNpmRestored">
+    <Exec Command="npm run build:debug" Condition="'$(Configuration)' == 'Debug'" />
+    <Exec Command="npm run build:production" Condition="'$(Configuration)' != 'Debug'" />
+    <ItemGroup>
+      <Content Include="wwwroot\**\*.js" />
+    </ItemGroup>
+  </Target>
+
+
+
+</Project>

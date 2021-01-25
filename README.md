@@ -1,5 +1,5 @@
-# Tg.Blazor.IndexedDB
-This is a Blazor library for accessing IndexedDB and uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side. 
+# BlazorIndexedDbJs
+This is a Blazor library for accessing IndexedDB and uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side.
 
 This version currently provides the following functionality:
 
@@ -91,11 +91,11 @@ To use IndexedDB in a component or page first inject the IndexedDbManager instan
 
 ```CSharp
 @inject IndexedDBManager DbManager
-``` 
+```
 
 ### Setting up notifications
 
-IndexedDBManager exposes ```ActionCompleted``` event that is raised when an action is completed. 
+IndexedDBManager exposes ```ActionCompleted``` event that is raised when an action is completed.
 
 If you want to receive notifications in the ```OnInit()`` function subscribe to the event.
 
@@ -230,14 +230,14 @@ What this will do is, if the store doesn't already exist, is increment the datab
 
 ### 2019-08-21
 
-* Updated to Blazor 3.0.0 preview 8 
+* Updated to Blazor 3.0.0 preview 8
 
 ### 2019-08-15
- 
+
  * Updated to Blazor 3.0.0 preview 7.
  * Added means to add a new store dynamically.
  * Added function to get current version and store names of the underlying IndexedDB.
- * Minor changes. 
+ * Minor changes.
 
 ### 2019-06-25
 
