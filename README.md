@@ -1,3 +1,7 @@
+![build Actions Status](https://github.com/kattunga/BlazorIndexedDbJs/workflows/build/badge.svg)
+
+[![Nuget](https://img.shields.io/nuget/v/BlazorIndexedDbJs?style=flat-square)](https://www.nuget.org/packages/BlazorIndexedDbJs/)
+
 # BlazorIndexedDbJs
 This is a Blazor library for accessing IndexedDB and uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side.
 
