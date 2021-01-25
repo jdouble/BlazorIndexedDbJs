@@ -4,8 +4,8 @@ This is a Blazor library for accessing IndexedDB and uses Jake Archibald's [idb 
 This version currently provides the following functionality:
 
 * Open and upgrade an instance of IndexedDB, creating stores
-* Add and update a record to/in a given store
-* Delete a record from a store
+* Append/Update/Delete single record
+* Batch append/Update/Delete single record
 * Retrieve all records from a given store
 * Retrieve a record/or records from a store by index and value if the index exists
 * Add a new store dynamically
@@ -16,15 +16,83 @@ It does not, at the moment, support aggregate keys, searches using a range and s
 
 ## Using the library
 
-1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.5.0-preview```)
-2. create a new instance of DbStore
-3. add one or more store definitions
-4. Add the following script reference to your Index.html after the blazor.webassembly.js reference: ```<script src="_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js"></script>```
-5. Inject the created instance of IndexedDbManger into the component or page where you want to use it
+### requires 
+NET 5.0 or newer
 
-The library provides a service extension to create a singleton instance of the DbStore.
+### 1. Install NuGet package
 
-Within the client application's ```startup.cs``` file, add the following to the ```ConfigureServices``` function.
+```
+Install-Package BlazorIndexedDbJs
+```
+
+or
+
+```
+dotnet add package BlazorIndexedDbJs
+```
+
+### 2. Refence to indexedDb.Blazor.js library
+
+For blazor wasm, in `wwwroot\index.html`
+```html
+...
+<body>
+    ...
+    <script src="_framework/blazor.webassembly.js"></script>
+
+    <!-- if you need to scan as soon as the app start, add this before _framework/blazor.webassembly.js -->
+    <script src="_content/BlazorIndexedDbJs/indexedDb.Blazor.js"></script>
+</body>
+```
+
+For blazor server, in `Pages/_Host.cshtml`
+```html
+...
+<body>
+    ...
+    <script src="_framework/blazor.server.js"></script>    
+
+    <!-- if you need to scan as soon as the app start, add this before _framework/blazor.server.js -->
+    <script src="_content/BlazorIndexedDbJs/indexedDb.Blazor.js"></script>
+</body>
+```
+
+### 3. add scoped service BlazorIndexedDbJs
+
+For blazor wasm, in `startup.cs`
+```
+    public class Program
+    {
+        public static async Task Main(string[] args)
+        {
+            var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.RootComponents.Add<App>("#app");
+
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+            builder.Services.AddScoped<BlazorIndexedDbJs>();
+
+            await builder.Build().RunAsync();
+        }
+    }
+```
+
+For blazor server, in `program.cs`
+```
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
+            services.AddSingleton<WeatherForecastService>();
+
+            services.AddScoped<BlazorIndexedDbJs>();
+        }
+```
+
+### 4. inherit a DbStore class
+
+
+
 
 ```CSharp
 services.AddIndexedDB(dbStore =>
@@ -207,6 +275,14 @@ What this will do is, if the store doesn't already exist, is increment the datab
 
 
 ## Change Logs
+
+### 2021-01-25
+
+* New library name as this is a fork of the original library
+* Upgrade to net 5.0
+* batch operations insert/update/delete
+* class StoreRecord deleted to support batch operations
+* minor fixes
 
 ### 2020-01-08
 
