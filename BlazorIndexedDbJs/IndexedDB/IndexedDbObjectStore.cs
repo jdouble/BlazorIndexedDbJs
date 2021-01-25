@@ -5,9 +5,8 @@ namespace BlazorIndexedDbJs
     /// <summary>
     /// Defines a store to add to database
     /// </summary>
-    public class StoreSchema
+    public class IndexedDbObjectStore
     {
-        public int? DbVersion { get; set; }
         /// <summary>
         /// The name for the store
         /// </summary>
@@ -17,11 +16,11 @@ namespace BlazorIndexedDbJs
         /// Defines the primary key to use. If not defined automatically creates a primary that is
         /// set to true for auto increment, and has the name and path of "id"
        /// </summary>
-        public IndexSpec PrimaryKey { get; set; }
+        public IndexedDbIndex PrimaryKey { get; set; }
 
         /// <summary>
         /// Provides a set of additional indexes if required.
         /// </summary>
-        public List<IndexSpec> Indexes { get; set; } = new List<IndexSpec>();
+        public List<IndexedDbIndex> Indexes { get; set; } = new List<IndexedDbIndex>();
     }
 }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Defines an Index for a given object store.
     /// </summary>
-    public class IndexSpec
+    public class IndexedDbIndex
     {
         /// <summary>
         /// The name of the index.

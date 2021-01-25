@@ -11,10 +11,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
     public partial class IndexedDbTest: ComponentBase, IDisposable
     {
         [Inject]
-        public IndexedDBManager DbManager {get; set; }
-
-        [Inject]
-        public DbStore DbStore {get; set; }
+        public IndexedDbManager<TheFactoryDb> DbManager {get; set; }
 
         private string Message { get; set; }
         private IList<Person> People { get; set; } = new List<Person>();
@@ -45,13 +42,13 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
             if (String.IsNullOrEmpty(firstName))
             {
-                results = await DbManager.GetRecords<Person>(DbStoreConfig.Employees);
+                results = await DbManager.GetRecords<Person>(TheFactoryDb.Employees);
             }
             else
             {
                 var indexSearch = new StoreIndexQuery<string>
                 {
-                    Storename = DbStoreConfig.Employees,
+                    Storename = TheFactoryDb.Employees,
                     IndexName = "firstName",
                     QueryValue = firstName,
                 };
@@ -77,7 +74,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                CurrentPerson = await DbManager.GetRecordById<long, Person>(DbStoreConfig.Employees, id);
+                CurrentPerson = await DbManager.GetRecordById<long, Person>(TheFactoryDb.Employees, id);
             }
             catch (Exception e)
             {
@@ -90,11 +87,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             if (CurrentPerson.Id.HasValue)
             {
-                await DbManager.UpdateRecord(DbStoreConfig.Employees, CurrentPerson);
+                await DbManager.UpdateRecord(TheFactoryDb.Employees, CurrentPerson);
             }
             else
             {
-                await DbManager.AddRecord(DbStoreConfig.Employees, CurrentPerson);
+                await DbManager.AddRecord(TheFactoryDb.Employees, CurrentPerson);
             }
 
             CurrentPerson = new Person();
@@ -116,21 +113,21 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 list.Add(person);
             }
 
-            await DbManager.AddRecords<Person>(DbStoreConfig.Employees, list.ToArray());
+            await DbManager.AddRecords<Person>(TheFactoryDb.Employees, list.ToArray());
 
             await GetRecords();
         }
 
         private async Task DeleteRecord(long? id)
         {
-            await DbManager.DeleteRecord(DbStoreConfig.Employees, id);
+            await DbManager.DeleteRecord(TheFactoryDb.Employees, id);
 
             await GetRecords();
         }
 
         private async Task ClearStore()
         {
-            await DbManager.ClearStore(DbStoreConfig.Employees);
+            await DbManager.ClearStore(TheFactoryDb.Employees);
 
             await GetRecords();
         }
@@ -140,7 +137,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             await GetRecords(SearchFirstName);
         }
 
-        private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
+        private void OnIndexedDbNotification(object sender, IndexedDbNotificationArgs args)
         {
             Message = args.Message;
 

@@ -1,7 +1,7 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from '../node_modules/idb/lib/idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from '../node_modules/idb/lib/idb';
-import { IDbStore, IIndexSearch, IIndexSpec, IStoreSchema, IDotNetInstanceWrapper, IDbInformation } from './InteropInterfaces';
+import { IDatabase, IIndexSearch, IIndex, IObjectStore, IInformation } from './InteropInterfaces';
 
 export class IndexedDbManager {
 
@@ -9,26 +9,24 @@ export class IndexedDbManager {
 
     constructor() { }
 
-    public openDb = async (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
-        const dbStore = data;
-
+    public openDb = async (database: IDatabase): Promise<string> => {
         try {
-            if (!this.dbInstance || this.dbInstance.version < dbStore.version) {
+            if (!this.dbInstance || this.dbInstance.version < database.version) {
                 if (this.dbInstance) {
                     this.dbInstance.close();
                 }
-                this.dbInstance = await idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
-                    this.upgradeDatabase(upgradeDB, dbStore);
+                this.dbInstance = await idb.open(database.name, database.version, upgradeDB => {
+                    this.upgradeDatabase(upgradeDB, database);
                 });
             }
         } catch (e) {
-            this.dbInstance = await idb.open(dbStore.dbName);
+            this.dbInstance = await idb.open(database.name);
         }
 
-        return `IndexedDB ${data.dbName} opened`;
+        return `IndexedDB ${database.name} opened`;
     }
 
-    public getDbInfo = async (dbName: string) : Promise<IDbInformation> => {
+    public getDbInfo = async (dbName: string) : Promise<IInformation> => {
         if (!this.dbInstance) {
             this.dbInstance = await idb.open(dbName);
         }
@@ -42,9 +40,9 @@ export class IndexedDbManager {
             }
             return names;
         }
-        const dbInfo: IDbInformation = {
+        const dbInfo: IInformation = {
             version: currentDb.version,
-            storeNames: getStoreNames(currentDb.objectStoreNames)
+            objectStoreNames: getStoreNames(currentDb.objectStoreNames)
         };
 
         return dbInfo;
@@ -130,9 +128,9 @@ export class IndexedDbManager {
     }
 
     public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, searchData.storename, 'readonly');
+        const tx = this.getTransaction(this.dbInstance, searchData.storeName, 'readonly');
 
-        const results = await tx.objectStore(searchData.storename)
+        const results = await tx.objectStore(searchData.storeName)
             .index(searchData.indexName)
             .get(searchData.queryValue);
 
@@ -142,11 +140,11 @@ export class IndexedDbManager {
     }
 
     public getAllRecordsByIndex = async (searchData: IIndexSearch): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, searchData.storename, 'readonly');
+        const tx = this.getTransaction(this.dbInstance, searchData.storeName, 'readonly');
 
         let results: any[] = [];
 
-        tx.objectStore(searchData.storename)
+        tx.objectStore(searchData.storeName)
             .index(searchData.indexName)
             .iterateCursor(cursor => {
                 if (!cursor) {
@@ -231,10 +229,10 @@ export class IndexedDbManager {
         return data;
     }
 
-    private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDbStore) {
+    private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDatabase) {
         if (upgradeDB.oldVersion < dbStore.version) {
-            if (dbStore.stores) {
-                for (var store of dbStore.stores) {
+            if (dbStore.objectStores) {
+                for (var store of dbStore.objectStores) {
                     if (!upgradeDB.objectStoreNames.contains(store.name)) {
                         this.addNewStore(upgradeDB, store);
                     }
@@ -243,7 +241,7 @@ export class IndexedDbManager {
         }
     }
 
-    private addNewStore(upgradeDB: UpgradeDB, store: IStoreSchema) {
+    private addNewStore(upgradeDB: UpgradeDB, store: IObjectStore) {
         let primaryKey = store.primaryKey;
 
         if (!primaryKey) {

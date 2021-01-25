@@ -9,9 +9,28 @@ namespace BlazorIndexedDbJs
     /// <summary>
     /// Provides functionality for accessing IndexedDB from Blazor application
     /// </summary>
-    public class IndexedDBManager
+    public class IndexedDbManager<TDatabase> where TDatabase : IndexedDbDatabase, new()
     {
-        private readonly DbStore _dbStore;
+        private struct DbFunctions
+        {
+            public const string CreateDb = "createDb";
+            public const string DeleteDb = "deleteDb";
+            public const string AddRecord = "addRecord";
+            public const string AddRecords = "addRecords";
+            public const string UpdateRecord = "updateRecord";
+            public const string UpdateRecords = "updateRecords";
+            public const string GetRecords = "getRecords";
+            public const string OpenDb = "openDb";
+            public const string DeleteRecord = "deleteRecord";
+            public const string DeleteRecords = "deleteRecords";
+            public const string GetRecordById = "getRecordById";
+            public const string ClearStore = "clearStore";
+            public const string GetRecordByIndex = "getRecordByIndex";
+            public const string GetAllRecordsByIndex = "getAllRecordsByIndex";
+            public const string GetDbInfo = "getDbInfo";
+        }
+
+        private readonly IndexedDbDatabase _database;
         private readonly IJSRuntime _jsRuntime;
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
         private bool _isOpen;
@@ -19,32 +38,33 @@ namespace BlazorIndexedDbJs
         /// <summary>
         /// A notification event that is raised when an action is completed
         /// </summary>
-        public event EventHandler<IndexedDBNotificationArgs> ActionCompleted;
+        public event EventHandler<IndexedDbNotificationArgs> ActionCompleted;
 
-        public IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime)
+        public IndexedDbManager(IJSRuntime jsRuntime)
         {
-            _dbStore = dbStore;
             _jsRuntime = jsRuntime;
+            _database = new TDatabase();
+            _database.OnConfiguring();
         }
 
-        public List<StoreSchema> Stores => _dbStore.Stores;
-        public int CurrentVersion => _dbStore.Version;
-        public string DbName => _dbStore.DbName;
+        public List<IndexedDbObjectStore> ObjectStores => _database.ObjectStores;
+        public int Version => _database.Version;
+        public string Name => _database.Name;
 
         /// <summary>
-        /// Opens the IndexedDB defined in the DbStore. Under the covers will create the database if it does not exist
-        /// and create the stores defined in DbStore.
+        /// Opens the IndexedDB defined in the DbDatabase. Under the covers will create the database if it does not exist
+        /// and create the stores defined in DbDatabase.
         /// </summary>
         /// <returns></returns>
         public async Task OpenDb()
         {
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectReference.Create(this), MethodName= "Callback"});
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _database, new { Instance = DotNetObjectReference.Create(this), MethodName= "Callback"});
             _isOpen = true;
 
 
            await GetCurrentDbState();
 
-            RaiseNotification(IndexDBActionOutCome.Successful, result);
+            RaiseNotification(IndexedDbActionOutCome.Successful, result);
         }
 
         /// <summary>
@@ -60,27 +80,26 @@ namespace BlazorIndexedDbJs
             }
             var result = await CallJavascript<string>(DbFunctions.DeleteDb, dbName);
 
-            RaiseNotification(IndexDBActionOutCome.Successful, result);
+            RaiseNotification(IndexedDbActionOutCome.Successful, result);
         }
 
         public async Task GetCurrentDbState()
         {
             await EnsureDbOpen();
 
-            var result = await CallJavascript<DbInformation>(DbFunctions.GetDbInfo, _dbStore.DbName);
+            var result = await CallJavascript<IndexedDbInformation>(DbFunctions.GetDbInfo, _database.Name);
 
-            if (result.Version > _dbStore.Version)
+            if (result.Version > _database.Version)
             {
-                _dbStore.Version = result.Version;
+                _database.Version = result.Version;
 
-                var currentStores = _dbStore.Stores.Select(s => s.Name);
+                var currentStores = _database.ObjectStores.Select(s => s.Name);
 
-                foreach (var storeName in result.StoreNames)
+                foreach (var storeName in result.ObjectStoreNames)
                 {
                     if (!currentStores.Contains(storeName))
                     {
-                        _dbStore.Stores.Add(new StoreSchema { DbVersion = result.Version, Name = storeName });
-
+                        _database.ObjectStores.Add(new IndexedDbObjectStore { Name = storeName });
                     }
                 }
             }
@@ -91,25 +110,25 @@ namespace BlazorIndexedDbJs
         /// </summary>
         /// <param name="storeSchema"></param>
         /// <returns></returns>
-        public async Task AddNewStore(StoreSchema storeSchema)
+        public async Task AddNewStore(IndexedDbObjectStore storeSchema)
         {
             if (storeSchema == null)
             {
                 return;
             }
 
-            if (_dbStore.Stores.Any(s => s.Name == storeSchema.Name))
+            if (_database.ObjectStores.Any(s => s.Name == storeSchema.Name))
             {
                 return;
             }
 
-            _dbStore.Stores.Add(storeSchema);
-            _dbStore.Version += 1;
+            _database.ObjectStores.Add(storeSchema);
+            _database.Version += 1;
 
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectReference.Create(this), MethodName = "Callback" });
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _database, new { Instance = DotNetObjectReference.Create(this), MethodName = "Callback" });
             _isOpen = true;
 
-            RaiseNotification(IndexDBActionOutCome.Successful, $"new store {storeSchema.Name} added");
+            RaiseNotification(IndexedDbActionOutCome.Successful, $"new store {storeSchema.Name} added");
         }
 
         /// <summary>
@@ -125,11 +144,11 @@ namespace BlazorIndexedDbJs
             try
             {
                 var result = await CallJavascript<string>(DbFunctions.AddRecord, storeName, data);
-                RaiseNotification(IndexDBActionOutCome.Successful, result);
+                RaiseNotification(IndexedDbActionOutCome.Successful, result);
             }
             catch (JSException e)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, e.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, e.Message);
             }
         }
 
@@ -146,11 +165,11 @@ namespace BlazorIndexedDbJs
             try
             {
                 var result = await CallJavascript<string>(DbFunctions.AddRecords, storeName, data);
-                RaiseNotification(IndexDBActionOutCome.Successful, result);
+                RaiseNotification(IndexedDbActionOutCome.Successful, result);
             }
             catch (JSException e)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, e.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, e.Message);
             }
         }
 
@@ -166,11 +185,11 @@ namespace BlazorIndexedDbJs
             try
             {
                 var result = await CallJavascript<string>(DbFunctions.UpdateRecord, storeName, data);
-                RaiseNotification(IndexDBActionOutCome.Successful, result);
+                RaiseNotification(IndexedDbActionOutCome.Successful, result);
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
             }
         }
 
@@ -180,11 +199,11 @@ namespace BlazorIndexedDbJs
             try
             {
                 var result = await CallJavascript<string>(DbFunctions.UpdateRecords, storeName, data);
-                RaiseNotification(IndexDBActionOutCome.Successful, result);
+                RaiseNotification(IndexedDbActionOutCome.Successful, result);
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
             }
         }
 
@@ -201,13 +220,13 @@ namespace BlazorIndexedDbJs
             {
                 var results = await CallJavascript<List<TResult>>(DbFunctions.GetRecords, storeName);
 
-                RaiseNotification(IndexDBActionOutCome.Successful, $"Retrieved {results.Count} records from {storeName}");
+                RaiseNotification(IndexedDbActionOutCome.Successful, $"Retrieved {results.Count} records from {storeName}");
 
                 return results;
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
                 return default;
             }
 
@@ -234,7 +253,7 @@ namespace BlazorIndexedDbJs
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
                 return default;
             }
         }
@@ -252,11 +271,11 @@ namespace BlazorIndexedDbJs
             try
             {
                 var result = await CallJavascript<string>(DbFunctions.DeleteRecord, storeName, id);
-                RaiseNotification(IndexDBActionOutCome.Successful, result);
+                RaiseNotification(IndexedDbActionOutCome.Successful, result);
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
             }
         }
 
@@ -273,11 +292,11 @@ namespace BlazorIndexedDbJs
             try
             {
                 var result = await CallJavascript<string>(DbFunctions.DeleteRecords, storeName, ids);
-                RaiseNotification(IndexDBActionOutCome.Successful, result);
+                RaiseNotification(IndexedDbActionOutCome.Successful, result);
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
             }
         }
 
@@ -296,11 +315,11 @@ namespace BlazorIndexedDbJs
             try
             {
                 var result =  await CallJavascript<string, string>(DbFunctions.ClearStore, storeName);
-                RaiseNotification(IndexDBActionOutCome.Successful, result);
+                RaiseNotification(IndexedDbActionOutCome.Successful, result);
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
 
             }
 
@@ -324,7 +343,7 @@ namespace BlazorIndexedDbJs
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
                 return default;
             }
         }
@@ -342,13 +361,13 @@ namespace BlazorIndexedDbJs
             try
             {
                 var results = await CallJavascript<StoreIndexQuery<TInput>, List<TResult>>(DbFunctions.GetAllRecordsByIndex, searchQuery);
-                RaiseNotification(IndexDBActionOutCome.Successful,
+                RaiseNotification(IndexedDbActionOutCome.Successful,
                     $"Retrieved {results.Count} records, for {searchQuery.QueryValue} on index {searchQuery.IndexName}");
                 return results;
             }
             catch (JSException jse)
             {
-                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                RaiseNotification(IndexedDbActionOutCome.Failed, jse.Message);
                 return default;
             }
         }
@@ -368,9 +387,9 @@ namespace BlazorIndexedDbJs
             if (!_isOpen) await OpenDb();
         }
 
-        private void RaiseNotification(IndexDBActionOutCome outcome, string message)
+        private void RaiseNotification(IndexedDbActionOutCome outcome, string message)
         {
-            ActionCompleted?.Invoke(this, new IndexedDBNotificationArgs { Outcome = outcome, Message = message });
+            ActionCompleted?.Invoke(this, new IndexedDbNotificationArgs { Outcome = outcome, Message = message });
         }
     }
 }

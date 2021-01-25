@@ -3,13 +3,13 @@
 namespace BlazorIndexedDbJs
 {
 
-    public class IndexedDBNotificationArgs : EventArgs
+    public class IndexedDbNotificationArgs : EventArgs
     {
-        public IndexDBActionOutCome Outcome { get; set; }
+        public IndexedDbActionOutCome Outcome { get; set; }
         public string Message { get; set; }
     }
 
-    public enum IndexDBActionOutCome
+    public enum IndexedDbActionOutCome
     {
         Successful = 0,
         Failed = 1,

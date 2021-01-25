@@ -2,8 +2,8 @@
 
 <div>
     <p><b>status:</b> @Message</p>
-    <p><b>Db version:</b> @DbManager.CurrentVersion</p>
-    <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
+    <p><b>Db version:</b> @DbManager.Version</p>
+    <p><b>stores:</b> @string.Join(", ", DbManager.ObjectStores.Select(s => s.Name))</p>
 </div>
 
 <div class="d-flex flex-row">
