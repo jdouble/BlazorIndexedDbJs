@@ -45,7 +45,7 @@ public async Task Delete<TKey>(string storeName, TKey key);
 
 public async Task BatchAdd<TData>(string storeName, TData[] data);
 public async Task BatchPut<TData>(string storeName, TData[] data);
-public async Task BatchDelete<TKey>(string storeName, TKey key);
+public async Task BatchDelete<TKey>(string storeName, TKey[] key);
 
 public async Task ClearStore(string storeName);
 ```
