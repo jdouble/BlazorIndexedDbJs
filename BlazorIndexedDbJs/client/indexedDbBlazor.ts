@@ -173,14 +173,34 @@ export class IndexedDbManager {
 
         data = this.checkForKeyPath(objectStore, data);
 
-        const result = await objectStore.add(data, key);
+        const result = await objectStore.add(data, key ?? undefined);
 
         await tx.complete;
 
         return `Added new record with id ${result}`;
     }
 
-    public addRecords = async (storename: string, data: any[]): Promise<string> => {
+    public put = async (storename: string, data: any, key?: any): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+
+        const result = await tx.objectStore(storename).put(data, key ?? undefined);
+
+        await tx.complete;
+
+        return `updated record with id ${result}`;
+    }
+
+    public delete = async (storename: string, id: any): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+
+        await tx.objectStore(storename).delete(id);
+
+        await tx.complete;
+
+        return `Record with id: ${id} deleted`;
+    }
+
+    public batchAdd = async (storename: string, data: any[]): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
         const objectStore = tx.objectStore(storename);
 
@@ -194,17 +214,7 @@ export class IndexedDbManager {
         return `Added ${data.length} records`;
     }
 
-    public put = async (storename: string, data: any, key?: any): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-
-        const result = await tx.objectStore(storename).put(data, key);
-
-        await tx.complete;
-
-        return `updated record with id ${result}`;
-    }
-
-    public updateRecords = async (storename: string, data: any[]): Promise<string> => {
+    public batchPut = async (storename: string, data: any[]): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
 
         data.forEach(async element => {
@@ -216,17 +226,7 @@ export class IndexedDbManager {
         return `updated ${data.length} records`;
     }
 
-    public delete = async (storename: string, id: any): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-
-        await tx.objectStore(storename).delete(id);
-
-        await tx.complete;
-
-        return `Record with id: ${id} deleted`;
-    }
-
-    public deleteRecords = async (storename: string, ids: any[]): Promise<string> => {
+    public batchDelete = async (storename: string, ids: any[]): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
 
         ids.forEach(async element => {

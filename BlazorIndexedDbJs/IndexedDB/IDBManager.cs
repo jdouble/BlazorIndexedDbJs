@@ -15,6 +15,7 @@ namespace BlazorIndexedDbJs
         {
             public const string CreateDb = "createDb";
             public const string DeleteDb = "deleteDb";
+            public const string OpenDb = "openDb";
             public const string Get = "get";
             public const string GetAll = "getAll";
             public const string GetAllByArrayKey = "getAllByArrayKey";
@@ -28,12 +29,11 @@ namespace BlazorIndexedDbJs
             public const string CountFromIndex = "countFromIndex";
             public const string CountFromIndexByKeyRange = "countFromIndexByKeyRange";
             public const string Add = "add";
-            public const string AddRecords = "addRecords";
             public const string Put = "put";
-            public const string UpdateRecords = "updateRecords";
-            public const string OpenDb = "openDb";
             public const string Delete = "delete";
-            public const string DeleteRecords = "deleteRecords";
+            public const string BatchAdd = "batchAdd";
+            public const string BatchPut = "batchPut";
+            public const string BatchDelete = "batchDelete";
             public const string ClearStore = "clearStore";
             public const string GetDbInfo = "getDbInfo";
         }
@@ -392,7 +392,7 @@ namespace BlazorIndexedDbJs
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task Add<T>(string storeName, T data)
+        public async Task Add<TData>(string storeName, TData data)
         {
             await EnsureDbOpen();
             var result = await CallJavascript<string>(DbFunctions.Add, storeName, data);
@@ -400,17 +400,18 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
-        /// Add an array of new record/object in one transaction to the specified store
+        /// Adds a new record/object to the specified ObjectStore
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="storeName"></param>
         /// <param name="data"></param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TData"></typeparam>
         /// <returns></returns>
-        public async Task AddRecords<T>(string storeName, T[] data)
+        public async Task Add<TData, TKey>(string storeName, TData data, TKey key)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<string>(DbFunctions.AddRecords, storeName, data);
-            RaiseNotification(DbFunctions.AddRecords, storeName, result);
+            var result = await CallJavascript<string>(DbFunctions.Add, storeName, data, key);
+            RaiseNotification(DbFunctions.Add, storeName, result);
         }
 
         /// <summary>
@@ -420,18 +421,27 @@ namespace BlazorIndexedDbJs
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task Put<T>(string storeName, T data)
+        public async Task Put<TData>(string storeName, TData data)
         {
             await EnsureDbOpen();
             var result = await CallJavascript<string>(DbFunctions.Put, storeName, data);
             RaiseNotification(DbFunctions.Put, storeName, result);
         }
 
-        public async Task UpdateRecords<T>(string storeName, T[] data)
+        /// <summary>
+        /// Updates and existing record
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="data"></param>
+        /// <param name="key"></param>
+        /// <typeparam name="TData"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task Put<TData, TKey>(string storeName, TData data, TKey key)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<string>(DbFunctions.UpdateRecords, storeName, data);
-            RaiseNotification(DbFunctions.UpdateRecords, storeName, result);
+            var result = await CallJavascript<string>(DbFunctions.Put, storeName, data, key);
+            RaiseNotification(DbFunctions.Put, storeName, result);
         }
 
         /// <summary>
@@ -449,17 +459,38 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
+        /// Add an array of new record/object in one transaction to the specified store
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public async Task BatchAdd<TData>(string storeName, TData[] data)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<string>(DbFunctions.BatchAdd, storeName, data);
+            RaiseNotification(DbFunctions.BatchAdd, storeName, result);
+        }
+
+        public async Task BatchPut<TData>(string storeName, TData[] data)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<string>(DbFunctions.BatchPut, storeName, data);
+            RaiseNotification(DbFunctions.BatchPut, storeName, result);
+        }
+
+        /// <summary>
         /// Delete multiple records from the store based on the id
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
         /// <param name="id"></param>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
-        public async Task DeleteRecords<TInput>(string storeName, TInput[] ids)
+        public async Task BatchDelete<TInput>(string storeName, TInput[] ids)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<string>(DbFunctions.DeleteRecords, storeName, ids);
-            RaiseNotification(DbFunctions.DeleteRecords, storeName, result);
+            var result = await CallJavascript<string>(DbFunctions.BatchDelete, storeName, ids);
+            RaiseNotification(DbFunctions.BatchDelete, storeName, result);
         }
 
         /// <summary>
