@@ -22,12 +22,14 @@ namespace BlazorIndexedDbJs
             public const string GetAllByKeyRange = "getAllByKeyRange";
             public const string Count = "count";
             public const string CountByKeyRange = "countByKeyRange";
+            public const string Query = "query";
             public const string GetFromIndex = "getFromIndex";
             public const string GetAllFromIndex = "getAllFromIndex";
             public const string GetAllFromIndexByArrayKey = "GetAllFromIndexByArrayKey";
             public const string GetAllFromIndexByKeyRange = "GetAllFromIndexByKeyRange";
             public const string CountFromIndex = "countFromIndex";
             public const string CountFromIndexByKeyRange = "countFromIndexByKeyRange";
+            public const string QueryFromIndex = "queryFromIndex";
             public const string Add = "add";
             public const string Put = "put";
             public const string Delete = "delete";
@@ -253,6 +255,23 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null)
+        {
+            await EnsureDbOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.Query, storeName, filter, count, skip);
+            RaiseNotification(DbFunctions.Query, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
         /// Returns the first record that matches a query against a given index
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
@@ -386,6 +405,23 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null)
+        {
+            await EnsureDbOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, storeName, indexName, filter, count, skip);
+            RaiseNotification(DbFunctions.QueryFromIndex, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
         /// Adds a new record/object to the specified ObjectStore
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
@@ -501,13 +537,20 @@ namespace BlazorIndexedDbJs
         public async Task ClearStore(string storeName)
         {
             await EnsureDbOpen();
-            var result =  await CallJavascript<string>(DbFunctions.ClearStore, storeName);
-            RaiseNotification(DbFunctions.ClearStore, storeName, result);
+                var result =  await CallJavascript<string>(DbFunctions.ClearStore, storeName);
+                RaiseNotification(DbFunctions.ClearStore, storeName, result);
         }
 
         private async Task<TResult> CallJavascript<TResult>(string functionName, params object?[] args)
         {
-            return await _jsRuntime.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", args);
+            try
+            {
+                return await _jsRuntime.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", args);
+            }
+            catch (JSException e)
+            {
+                throw new IDBException(e.Message);
+            }
         }
 
         private async Task EnsureDbOpen()

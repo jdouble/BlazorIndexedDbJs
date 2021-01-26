@@ -100,6 +100,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, range, count);
         }
 
+        private async Task GetByFilter()
+        {
+            People = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "return obj.firstName.startsWith('person');", 10, 10);
+        }
+
         private async Task EditPerson(long id)
         {
             try
@@ -108,7 +113,6 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             }
             catch (Exception e)
             {
-
                 Console.WriteLine(e.Message);
             }
         }

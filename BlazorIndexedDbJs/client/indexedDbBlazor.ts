@@ -113,6 +113,48 @@ export class IndexedDbManager {
         return await this.count(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
     }
 
+    public query = async (storeName: string, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        var func = new Function('obj', filter);
+
+        var row = 0;
+        var error = "";
+
+        let results: any[] = [];
+
+        tx.objectStore(storeName)
+            .iterateCursor(cursor => {
+                if (!cursor) {
+                    return;
+                }
+                try {
+                    if (func(cursor.value)) {
+                        row ++;
+                        if (row > skip) {
+                            results.push(cursor.value);
+                        }
+                    }
+                }
+                catch (e) {
+                    error = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${(e as Error).message}`;
+                    return;
+                }
+                if (count > 0 && results.length >= count) {
+                    return;
+                }
+                cursor.continue();
+            });
+
+        await tx.complete;
+
+        if (error) {
+            throw error;
+        }
+
+        return results;
+    }
+
     public getFromIndex = async (storeName: string, indexName: string, key: any): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
@@ -165,6 +207,49 @@ export class IndexedDbManager {
 
     public countFromIndexByKeyRange = async (storeName: string, indexName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean): Promise<number> => {
         return await this.countFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
+    }
+
+    public queryFromIndex = async (storeName: string, indexName: string, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        var func = new Function('obj', filter);
+
+        var row = 0;
+        var error = "";
+
+        let results: any[] = [];
+
+        tx.objectStore(storeName)
+            .index(indexName)
+            .iterateCursor(cursor => {
+                if (!cursor) {
+                    return;
+                }
+                try {
+                    if (func(cursor.value)) {
+                        row ++;
+                        if (row > skip) {
+                            results.push(cursor.value);
+                        }
+                    }
+                }
+                catch (e) {
+                    error = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${(e as Error).message}`;
+                    return;
+                }
+                if (count > 0 && results.length >= count) {
+                    return;
+                }
+                cursor.continue();
+            });
+
+        await tx.complete;
+
+        if (error) {
+            throw error;
+        }
+
+        return results;
     }
 
     public add = async (storename: string, data: any, key?: any): Promise<string> => {
