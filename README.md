@@ -3,19 +3,54 @@
 [![Nuget](https://img.shields.io/nuget/v/BlazorIndexedDbJs?style=flat-square)](https://www.nuget.org/packages/BlazorIndexedDbJs/)
 
 # BlazorIndexedDbJs
-This is a Blazor library for accessing IndexedDB and uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side.
 
-This version currently provides the following functionality:
+This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) library for accessing IndexedDB and uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side.
 
-* Open and upgrade an instance of IndexedDB, creating stores
-* Append/Update/Delete single record
-* Batch append/Update/Delete single record
-* Retrieve all records from a given store
-* Retrieve a record/or records from a store by index and value if the index exists
-* Add a new store dynamically
-* Works both with server-side Blazor and client-side Blazor
+[IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 
-It does not, at the moment, support aggregate keys, searches using a range and some of the more obscure features of IndexedDB.
+This are the IndexedDB implemented api functions:
+```CSharp
+public async Task OpenDb()
+public async Task DeleteDb()
+
+public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key)
+
+public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null)
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey key, int? count = null)
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key)
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null)
+
+public async Task<int> Count(string storeName)
+public async Task<int> Count<TKey>(string storeName, TKey key)
+public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key)
+
+public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue)
+
+public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null)
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null)
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key)
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null)
+
+public async Task<int> CountFromIndex(string storeName, string indexName)
+public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key)
+public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key)
+
+public async Task Add<TData>(string storeName, TData data)
+public async Task Put<TData>(string storeName, TData data)
+public async Task Delete<TKey>(string storeName, TKey key)
+
+public async Task ClearStore(string storeName)
+```
+
+extra functions:
+```CSharp
+public async Task GetCurrentDbState()
+public async Task CreateObjectStore(IDBObjectStore objectStore)
+```
+
+### todo
+
+at the moment does not support aggregate keys.
 
 
 ## Using the library
@@ -69,36 +104,36 @@ using Microsoft.JSInterop;
 using BlazorIndexedDbJs;
 
 namespace BlazorIndexedDbJsClientDemo.Data
-
-    public class TheFactoryDb: IndexedDbManager
+{
+    public class TheFactoryDb: IDBManager
     {
         public TheFactoryDb(IJSRuntime jsRuntime): base(jsRuntime) {}
 
         public const string Employees = "Employees";
 
-        protected override void OnConfiguring(IndexedDbDatabase database)
+        protected override void OnConfiguring(IDBDatabase database)
         {
             database.Name = "TheFactory";
             database.Version = 1;
 
-            database.ObjectStores.Add(new IndexedDbObjectStore
+            database.ObjectStores.Add(new IDBObjectStore
             {
                 Name = Employees,
-                PrimaryKey = new IndexedDbIndex
+                PrimaryKey = new IDBIndex
                 {
                     Name = "id",
                     KeyPath = "id",
                     Auto = true
                 },
-                Indexes = new List<IndexedDbIndex>
+                Indexes = new List<IDBIndex>
                 {
-                    new IndexedDbIndex
+                    new IDBIndex
                     {
                         Name="firstName",
                         KeyPath = "firstName",
                         Auto=false
                     },
-                    new IndexedDbIndex
+                    new IDBIndex
                     {
                         Name="lastName",
                         KeyPath = "lastName",
@@ -115,11 +150,11 @@ namespace BlazorIndexedDbJsClientDemo.Data
 To define the database we need to first give it a name and set its version. IndexedDB uses the version to determine whether it needs to update the database. For example if you decide to add a new store then increment the version to ensure that the store is added to the database.
 
 #### Step 2 - Add a store(table) to the database
-In IndexedDB a ObjectStore is equivalent to table. To create an ObjectStore we create a new ```IndexedDbObjectStore``` and add it to the collection of ObjectStores.
+In IndexedDB an ObjectStore is equivalent to a table. To create an ObjectStore we create a new ```IDBObjectStore``` and add it to the collection of IDBObjectStores.
 
-Within the ```ObjectStore``` we define the name, the primary index key and optionally a set of foreign key indexes if required.
+Within the ```IDBObjectStore``` we define the name, the primary index key and optionally a set of foreign key indexes if required.
 
-The ```IndexedDbIndex``` is used to define the primary key and any foreign keys that are required. It has the following properties:
+The ```IDBIndex``` is used to define the primary key and any foreign keys that are required. It has the following properties:
 
 * Name - the name of the index
 * KeyPath - the identifier for the property in the saved object/record that is to be indexed
@@ -129,7 +164,7 @@ The ```IndexedDbIndex``` is used to define the primary key and any foreign keys 
 In the example above for the "Employees" store the primary key is explicitly set to the keypath "id" and we want it automatically generated by IndexedDB. In the "Outbox" store the primary key just has ```Auto = true``` set. IndexedDB is left to handle the rest.
 
 
-### 4. add scoped service for database
+### 4. add scoped IDBManager for database
 
 For blazor wasm, in `startup.cs`
 ```CSharp
@@ -162,7 +197,7 @@ For blazor server, in `program.cs`
 ```
 
 
-## Using IndexedDbManager
+## Using IDBManager
 
 For the following examples we are going to assume that we have Person class which is defined as follows:
 
@@ -178,37 +213,20 @@ For the following examples we are going to assume that we have Person class whic
 And the data store name is "Employees"
 
 
-### Accessing IndexedDBManager
+### Accessing IDBManager
 
-To use IndexedDB in a component or page first inject the IndexedDbManager instance.
+To use IndexedDB in a component or page first inject the IDBManager instance.
 
 ```CSharp
 @inject TheFactoryDb theFactoryDb
 ```
 
-### Setting up notifications
+### Adding a record to an IDBObjectStore store
 
-IndexedDBManager exposes ```ActionCompleted``` event that is raised when an action is completed.
-
-If you want to receive notifications in the ```OnInit()`` function subscribe to the event.
-
-The function that handles the event should have the following signature:
+Assuming we have a new instance of our sample ```Person``` class, to add to the "Employees" ObjectStore doing the following:
 
 ```CSharp
- private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
-    {
-        Message = args.Message;
-    }
-```
-
-It is recommended that your page or component should also implement IDisposable to unsubscribe from the event.
-
-### Adding a record to an IndexedDb store
-
-Assuming we have a new instance of our sample ```Person``` class, to add to the "Employees" store doing the following:
-
-```CSharp
-await theFactoryDb.AddRecord("Employees", NewPerson);
+await theFactoryDb.Add("Employees", NewPerson);
 ```
 
 ### Getting all records from a store
