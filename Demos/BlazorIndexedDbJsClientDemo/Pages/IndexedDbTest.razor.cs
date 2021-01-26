@@ -117,11 +117,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             if (CurrentPerson.Id.HasValue)
             {
-                await theFactoryDb.UpdateRecord(TheFactoryDb.Employees, CurrentPerson);
+                await theFactoryDb.Put(TheFactoryDb.Employees, CurrentPerson);
             }
             else
             {
-                await theFactoryDb.AddRecord(TheFactoryDb.Employees, CurrentPerson);
+                await theFactoryDb.Add(TheFactoryDb.Employees, CurrentPerson);
             }
 
             CurrentPerson = new Person();
@@ -150,7 +150,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async Task DeleteRecord(long? id)
         {
-            await theFactoryDb.DeleteRecord(TheFactoryDb.Employees, id);
+            await theFactoryDb.Delete(TheFactoryDb.Employees, id);
 
             await GetRecords();
         }

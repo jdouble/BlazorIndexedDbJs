@@ -27,12 +27,12 @@ namespace BlazorIndexedDbJs
             public const string GetAllFromIndexByKeyRange = "GetAllFromIndexByKeyRange";
             public const string CountFromIndex = "countFromIndex";
             public const string CountFromIndexByKeyRange = "countFromIndexByKeyRange";
-            public const string AddRecord = "addRecord";
+            public const string Add = "add";
             public const string AddRecords = "addRecords";
-            public const string UpdateRecord = "updateRecord";
+            public const string Put = "put";
             public const string UpdateRecords = "updateRecords";
             public const string OpenDb = "openDb";
-            public const string DeleteRecord = "deleteRecord";
+            public const string Delete = "delete";
             public const string DeleteRecords = "deleteRecords";
             public const string ClearStore = "clearStore";
             public const string GetDbInfo = "getDbInfo";
@@ -392,11 +392,11 @@ namespace BlazorIndexedDbJs
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task AddRecord<T>(string storeName, T data)
+        public async Task Add<T>(string storeName, T data)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<string>(DbFunctions.AddRecord, storeName, data);
-            RaiseNotification(DbFunctions.AddRecord, storeName, result);
+            var result = await CallJavascript<string>(DbFunctions.Add, storeName, data);
+            RaiseNotification(DbFunctions.Add, storeName, result);
         }
 
         /// <summary>
@@ -420,11 +420,11 @@ namespace BlazorIndexedDbJs
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task UpdateRecord<T>(string storeName, T data)
+        public async Task Put<T>(string storeName, T data)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<string>(DbFunctions.UpdateRecord, storeName, data);
-            RaiseNotification(DbFunctions.UpdateRecord, storeName, result);
+            var result = await CallJavascript<string>(DbFunctions.Put, storeName, data);
+            RaiseNotification(DbFunctions.Put, storeName, result);
         }
 
         public async Task UpdateRecords<T>(string storeName, T[] data)
@@ -439,13 +439,13 @@ namespace BlazorIndexedDbJs
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="storeName"></param>
-        /// <param name="id"></param>
+        /// <param name="key"></param>
         /// <returns></returns>
-        public async Task DeleteRecord<TInput>(string storeName, TInput id)
+        public async Task Delete<TKey>(string storeName, TKey key)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<string>(DbFunctions.DeleteRecord, storeName, id);
-            RaiseNotification(DbFunctions.DeleteRecord, storeName, result);
+            var result = await CallJavascript<string>(DbFunctions.Delete, storeName, key);
+            RaiseNotification(DbFunctions.Delete, storeName, result);
         }
 
         /// <summary>

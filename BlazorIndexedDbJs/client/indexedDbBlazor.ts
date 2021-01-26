@@ -167,7 +167,7 @@ export class IndexedDbManager {
         return await this.countFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
     }
 
-    public addRecord = async (storename: string, data: any, key?: any): Promise<string> => {
+    public add = async (storename: string, data: any, key?: any): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
         const objectStore = tx.objectStore(storename);
 
@@ -194,7 +194,7 @@ export class IndexedDbManager {
         return `Added ${data.length} records`;
     }
 
-    public updateRecord = async (storename: string, data: any, key?: any): Promise<string> => {
+    public put = async (storename: string, data: any, key?: any): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
 
         const result = await tx.objectStore(storename).put(data, key);
@@ -216,17 +216,7 @@ export class IndexedDbManager {
         return `updated ${data.length} records`;
     }
 
-    public clearStore = async (storeName: string): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
-
-        await tx.objectStore(storeName).clear();
-
-        await tx.complete;
-
-        return `Store ${storeName} cleared`;
-    }
-
-    public deleteRecord = async (storename: string, id: any): Promise<string> => {
+    public delete = async (storename: string, id: any): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
 
         await tx.objectStore(storename).delete(id);
@@ -246,6 +236,16 @@ export class IndexedDbManager {
         await tx.complete;
 
         return `Deleted ${ids.length} records`;
+    }
+
+    public clearStore = async (storeName: string): Promise<string> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
+
+        await tx.objectStore(storeName).clear();
+
+        await tx.complete;
+
+        return `Store ${storeName} cleared`;
     }
 
     private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
