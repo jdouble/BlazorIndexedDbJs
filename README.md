@@ -52,8 +52,8 @@ public async Task ClearStore(string storeName);
 
 query functions
 ```CSharp
-public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null);
+public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
 ```
 
 other functions
