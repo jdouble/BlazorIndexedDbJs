@@ -48,7 +48,16 @@ public async Task BatchPut<TData>(string storeName, TData[] data);
 public async Task BatchDelete<TKey>(string storeName, TKey[] key);
 
 public async Task ClearStore(string storeName);
+```
 
+query functions
+```CSharp
+public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
+public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null);
+```
+
+other functions
+```CSharp
 public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
@@ -225,74 +234,70 @@ To use IndexedDB in a component or page first inject the IDBManager instance.
 @inject TheFactoryDb theFactoryDb
 ```
 
-### Adding a record to an IDBObjectStore store
-
-Assuming we have a new instance of our sample ```Person``` class, to add to the "Employees" ObjectStore doing the following:
-
-```CSharp
-await theFactoryDb.Add("Employees", NewPerson);
-```
-
 ### Getting all records from a store
-
 ```CSharp
-var people = await theFactoryDb.GetRecords<Person>("Employees");
+var people = await theFactoryDb.GetAll<Person>("Employees");
 ```
  
-### Get record by Id
-To get a record using the id can be done as follows:
-
+### Get one record by Id
 ```CSharp
-var person = await theFactoryDb.GetRecordById<long, Person>("Employees", id);
+var person = await theFactoryDb.Get<long, Person>("Employees", id);
 ```
 
-### getting a record using the index
-
-To find a record using an index
-
+### Query a IDBObjectStore using a filter expression
 ```CSharp
-var person = await theFactoryDb.GetRecordByIndex<string, Person>("Employees", "firstName", "John");
+var people = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "obj.firstName.endsWith('10')");
 ```
 
-By default IndexedDB only returns the first record found that matches the query. If you want to get all of the records that match the query value use the following:
-
+### getting one record using an index
 ```CSharp
-var people = await theFactoryDb.GetRecordByIndex<string, Person>("Employees", "firstName", "John");
+var person = await theFactoryDb.GetFromIndex<string, Person>("Employees", "firstName", "John");
+```
+
+### Getting all records from an index
+```CSharp
+var people = await theFactoryDb.GetAllFromIndex<string, Person>("Employees", "firstName", "John");
+```
+
+### Adding a record to an IDBObjectStore
+```CSharp
+var newPerson = new Person() {
+    FirstName = "John",
+    LastName = "Doe"
+};
+
+await theFactoryDb.Add("Employees", newPerson);
 ```
 
 ### Updating a record
-
 ```
-await theFactoryDb.UpdateRecord<Person>("Employees", recordToUpdate)
+await theFactoryDb.Put<Person>("Employees", recordToUpdate)
 ```
 
 ### Deleting a record
-
 ```
-await theFactoryDb.UpdateRecord<int>("Employees", id)
+await theFactoryDb.Delete<int>("Employees", id)
 ```
 
 ### Clear all records from a store
-
 ```
 await theFactoryDb.ClearStore("Employees")
 ```
 
 ### Deleting a Database
-
 ```
 await theFactoryDb.DeleteDb()
 ```
 
-### Adding a new store dynamically
+### Adding a new IDBObjectStore dynamically
 
 If you have occasion to what to add a store when the program is up and running. The following
 
 ```CSharp
-var newObjectStore = new IndexedDbObjectStore
+var newObjectStore = new IDBObjectStore()
     {
         Name = NewStoreName,
-        PrimaryKey = new IndexedDbIndex { Name = "id", KeyPath = "id", Auto = true },
+        PrimaryKey = new IDBIndex { Name = "id", KeyPath = "id", Auto = true },
     };
 
 await theFactoryDb.AddNewStore(newObjectStore);
@@ -300,52 +305,3 @@ await theFactoryDb.AddNewStore(newObjectStore);
 
 What this will do is, if the store doesn't already exist, is increment the database version number and add the store to the database.
 
-
-## Change Logs
-
-### 2021-01-25
-
-* New library name as this is a fork of the original library
-* Upgrade to net 5.0
-* batch operations insert/update/delete
-* class StoreRecord deleted to support batch operations
-* complete classnames refactor
-
-### 2020-01-08
-
-* Major refactor to properly support inclusion of the Javascript file from the library as a static asset. Rewrote as a Razor library and consolidated the Javascript project into the main library project.
-* Now supports both client and server-side Blazor projects.
-
-### 2019-12-30
-
-* Change when setting up primary index to use keyPath property rather than name (thanks Fabian Fleischer)
-
-
-### 2019-10-07
-
-* Updated to .NET Core 3.0 (thanks Tony Hild)
-
-### 2019-09-13
-
-* Updated to Blazor 3.0.0 preview 9 (thanks Edgars Šults)
-
-* Updated the JavaScript interop class to use new the approach for static content (thanks dieterdp)
-
-### 2019-08-21
-
-* Updated to Blazor 3.0.0 preview 8
-
-### 2019-08-15
-
- * Updated to Blazor 3.0.0 preview 7.
- * Added means to add a new store dynamically.
- * Added function to get current version and store names of the underlying IndexedDB.
- * Minor changes.
-
-### 2019-06-25
-
-* Upgraded to Blazor 3.0.0 preview 6.
-
-### 2019-04-21
-
-* Upgraded to Blazor 0.9.0-preview3-19154-02 (thanks Behnam Emamian).
