@@ -48,11 +48,7 @@ public async Task BatchPut<TData>(string storeName, TData[] data);
 public async Task BatchDelete<TKey>(string storeName, TKey[] key);
 
 public async Task ClearStore(string storeName);
-```
 
-extra functions:
-```CSharp
-public async Task GetCurrentDbState();
 public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
