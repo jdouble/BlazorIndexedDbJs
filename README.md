@@ -10,50 +10,50 @@ This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) lib
 
 This are the IndexedDB implemented api functions:
 ```CSharp
-public async Task OpenDb()
-public async Task DeleteDb()
+public async Task OpenDb();
+public async Task DeleteDb();
 
-public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key)
+public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key);
 
-public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null)
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey key, int? count = null)
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key)
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null)
+public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey key, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key);
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null);
 
-public async Task<int> Count(string storeName)
-public async Task<int> Count<TKey>(string storeName, TKey key)
-public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key)
+public async Task<int> Count(string storeName);
+public async Task<int> Count<TKey>(string storeName, TKey key);
+public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key);
 
-public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue)
+public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue);
 
-public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null)
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null)
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key)
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null)
+public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null);
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null);
 
-public async Task<int> CountFromIndex(string storeName, string indexName)
-public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key)
-public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key)
+public async Task<int> CountFromIndex(string storeName, string indexName);
+public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key);
+public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key);
 
-public async Task Add<TData>(string storeName, TData data)
-public async Task Add<TData, TKey>(string storeName, TData data, TKey key)
+public async Task Add<TData>(string storeName, TData data);
+public async Task Add<TData, TKey>(string storeName, TData data, TKey key);
 
-public async Task Put<TData>(string storeName, TData data)
-public async Task Put<TData, TKey>(string storeName, TData data, TKey key)
+public async Task Put<TData>(string storeName, TData data);
+public async Task Put<TData, TKey>(string storeName, TData data, TKey key);
 
-public async Task Delete<TKey>(string storeName, TKey key)
+public async Task Delete<TKey>(string storeName, TKey key);
 
-public async Task BatchAdd<TData>(string storeName, TData[] data)
-public async Task BatchPut<TData>(string storeName, TData[] data)
-public async Task BatchDelete<TKey>(string storeName, TKey key)
+public async Task BatchAdd<TData>(string storeName, TData[] data);
+public async Task BatchPut<TData>(string storeName, TData[] data);
+public async Task BatchDelete<TKey>(string storeName, TKey key);
 
-public async Task ClearStore(string storeName)
+public async Task ClearStore(string storeName);
 ```
 
 extra functions:
 ```CSharp
-public async Task GetCurrentDbState()
-public async Task CreateObjectStore(IDBObjectStore objectStore)
+public async Task GetCurrentDbState();
+public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
 ### todo
