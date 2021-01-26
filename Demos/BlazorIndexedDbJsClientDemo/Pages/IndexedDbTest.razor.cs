@@ -27,7 +27,8 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             if (firstRender)
             {
-                await GetRecords();
+                await GetAll();
+                StateHasChanged();
             }
         }
 
@@ -36,17 +37,17 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             theFactoryDb.ActionCompleted -= OnIndexedDbNotification;
         }
 
-        private async Task GetRecords(string firstName = "")
+        private async Task GetRecords(string firstName = "", int? count = null)
         {
             IList<Person> results;
 
             if (String.IsNullOrEmpty(firstName))
             {
-                results = await theFactoryDb.GetRecords<Person>(TheFactoryDb.Employees);
+                results = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
             }
             else
             {
-                results = await theFactoryDb.GetAllRecordsByIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
+                results = await theFactoryDb.GetAllFromIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
             }
 
 
@@ -59,15 +60,51 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 People.Clear();
                 Message = "No Records found";
             }
+        }
 
-            StateHasChanged();
+        private async Task ClearStore()
+        {
+            await theFactoryDb.ClearStore(TheFactoryDb.Employees);
+
+            await GetRecords();
+        }
+
+        private async Task RecreateDb()
+        {
+            await theFactoryDb.DeleteDb();
+
+            await GetRecords();
+        }
+
+        private async Task GetAll(int? count = null)
+        {
+            People = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
+        }
+
+        private async Task GetByKey(int key, int? count = null)
+        {
+            People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key, count);
+        }
+
+        private async Task GetByKeyArray(int[] key)
+        {
+            People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key);
+        }
+
+        private async Task GetByKeyRange(int lower, int upper, int? count = null)
+        {
+            var range = new IDBKeyRange<int>() {
+                Lower = lower,
+                Upper = upper
+            };
+            People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, range, count);
         }
 
         private async Task EditPerson(long id)
         {
             try
             {
-                CurrentPerson = await theFactoryDb.GetRecordById<long, Person>(TheFactoryDb.Employees, id);
+                CurrentPerson = await theFactoryDb.Get<long, Person>(TheFactoryDb.Employees, id);
             }
             catch (Exception e)
             {
@@ -118,19 +155,12 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             await GetRecords();
         }
 
-        private async Task ClearStore()
-        {
-            await theFactoryDb.ClearStore(TheFactoryDb.Employees);
-
-            await GetRecords();
-        }
-
         private async Task SearchRecords()
         {
             await GetRecords(SearchFirstName);
         }
 
-        private void OnIndexedDbNotification(object sender, IndexedDbNotificationArgs args)
+        private void OnIndexedDbNotification(object sender, IDBManagerNotificationArgs args)
         {
             Message = args.Message;
 

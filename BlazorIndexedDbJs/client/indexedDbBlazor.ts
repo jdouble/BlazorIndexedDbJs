@@ -26,6 +26,16 @@ export class IndexedDbManager {
         return `IndexedDB ${database.name} opened`;
     }
 
+    public deleteDb = async(dbName: string): Promise<string> => {
+        this.dbInstance.close();
+
+        await idb.delete(dbName);
+
+        this.dbInstance = undefined;
+
+        return `The database ${dbName} has been deleted`;
+    }
+
     public getDbInfo = async (dbName: string) : Promise<IInformation> => {
         if (!this.dbInstance) {
             this.dbInstance = await idb.open(dbName);
@@ -48,14 +58,94 @@ export class IndexedDbManager {
         return dbInfo;
     }
 
-    public deleteDb = async(dbName: string): Promise<string> => {
-        this.dbInstance.close();
+    public get = async (storename: string, key: any): Promise<any> => {
 
-        await idb.delete(dbName);
+        const tx = this.getTransaction(this.dbInstance, storename, 'readonly');
 
-        this.dbInstance = undefined;
+        let result = await tx.objectStore(storename).get(key);
 
-        return `The database ${dbName} has been deleted`;
+        await tx.complete;
+
+        return result;
+    }
+
+    public getAll = async (storeName: string, key?: any, count?: number): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        let results = await tx.objectStore(storeName).getAll(key ?? undefined, count ?? undefined);
+
+        await tx.complete;
+
+        return results;
+    }
+
+    public getAllByKeyRange = async (storeName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean, count?: number): Promise<any> => {
+        return await this.getAll(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen), count);
+    }
+
+    public getAllByArrayKey = async (storeName: string, key: any[]): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        let results: any[] = [];
+
+        for (let index = 0; index < key.length; index++) {
+            const element = key[index];
+            results.push(await tx.objectStore(storeName).get(element));
+        }
+
+        await tx.complete;
+
+        return results;
+    }
+
+    public count = async (storeName: string, key?: any): Promise<number> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        let result = await tx.objectStore(storeName).count(key ?? undefined);
+
+        await tx.complete;
+
+        return result;
+    }
+
+    public countAllByKeyRange = async (storeName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean): Promise<number> => {
+        return await this.count(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
+    }
+
+    public getFromIndex = async (storeName: string, indexName: string, key: any): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        const results = await tx.objectStore(storeName)
+            .index(indexName)
+            .get(key);
+
+        await tx.complete;
+
+        return results;
+    }
+
+    public getAllFromIndex = async (storeName: string, indexName: string, key: any): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        let results: any[] = [];
+
+        tx.objectStore(storeName)
+            .index(indexName)
+            .iterateCursor(cursor => {
+                if (!cursor) {
+                    return;
+                }
+
+                if (cursor.key === key) {
+                    results.push(cursor.value);
+                }
+
+                cursor.continue();
+            });
+
+        await tx.complete;
+
+        return results;
     }
 
     public addRecord = async (storename: string, data: any, key?: any): Promise<string> => {
@@ -107,16 +197,6 @@ export class IndexedDbManager {
         return `updated ${data.length} records`;
     }
 
-    public getRecords = async (storeName: string): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-
-        let results = await tx.objectStore(storeName).getAll();
-
-        await tx.complete;
-
-        return results;
-    }
-
     public clearStore = async (storeName: string): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
 
@@ -125,53 +205,6 @@ export class IndexedDbManager {
         await tx.complete;
 
         return `Store ${storeName} cleared`;
-    }
-
-    public getRecordByIndex = async (storeName: string, indexName: string, queryValue: any): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-
-        const results = await tx.objectStore(storeName)
-            .index(indexName)
-            .get(queryValue);
-
-        await tx.complete;
-
-        return results;
-    }
-
-    public getAllRecordsByIndex = async (storeName: string, indexName: string, queryValue: any): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-
-        let results: any[] = [];
-
-        tx.objectStore(storeName)
-            .index(indexName)
-            .iterateCursor(cursor => {
-                if (!cursor) {
-                    return;
-                }
-
-                if (cursor.key === queryValue) {
-                    results.push(cursor.value);
-                }
-
-                cursor.continue();
-            });
-
-        await tx.complete;
-
-        return results;
-    }
-
-    public getRecordById = async (storename: string, id: any): Promise<any> => {
-
-        const tx = this.getTransaction(this.dbInstance, storename, 'readonly');
-
-        let result = await tx.objectStore(storename).get(id);
-
-        await tx.complete;
-
-        return result;
     }
 
     public deleteRecord = async (storename: string, id: any): Promise<string> => {
