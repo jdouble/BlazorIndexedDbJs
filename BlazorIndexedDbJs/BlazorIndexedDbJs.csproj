@@ -9,11 +9,11 @@
     <AssemblyName>BlazorIndexedDbJs</AssemblyName>
     <RootNamespace>BlazorIndexedDbJs</RootNamespace>
     <Version>2.3.0</Version>
-    <Authors>William Tulloch, Christian Pradelli</Authors>
+    <Authors>Christian Pradelli</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/kattunga/BlazorIndexedDbJs</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <Description>A Blazor library for interacting with IndexedDB using jsInterop. This library is a fork of https://github.com/wtulloch/Blazor.IndexedDB with some improvements</Description>
+    <Description>A Blazor library for interacting with IndexedDB using jsInterop</Description>
   </PropertyGroup>
 
   <ItemGroup>
