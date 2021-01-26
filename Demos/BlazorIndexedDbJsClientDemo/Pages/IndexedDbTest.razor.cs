@@ -143,7 +143,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 list.Add(person);
             }
 
-            await theFactoryDb.AddRecords<Person>(TheFactoryDb.Employees, list.ToArray());
+            await theFactoryDb.BatchAdd<Person>(TheFactoryDb.Employees, list.ToArray());
 
             await GetRecords();
         }

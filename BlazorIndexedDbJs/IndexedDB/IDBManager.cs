@@ -89,7 +89,7 @@ namespace BlazorIndexedDbJs
             RaiseNotification(DbFunctions.DeleteDb, "", result);
         }
 
-        public async Task GetCurrentDbState()
+        private async Task GetCurrentDbState()
         {
             await EnsureDbOpen();
             var result = await CallJavascript<IDBDatabaseInformation>(DbFunctions.GetDbInfo, _database.Name);
