@@ -35,8 +35,12 @@ public async Task<int> CountFromIndex(string storeName, string indexName)
 public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key)
 public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key)
 
-public async Task Add<TData>(string storeName, TData data, TKey? key = null)
-public async Task Put<TData>(string storeName, TData data, TKey? key = null)
+public async Task Add<TData>(string storeName, TData data)
+public async Task Add<TData, TKey>(string storeName, TData data, TKey key)
+
+public async Task Put<TData>(string storeName, TData data)
+public async Task Put<TData, TKey>(string storeName, TData data, TKey key)
+
 public async Task Delete<TKey>(string storeName, TKey key)
 
 public async Task BatchAdd<TData>(string storeName, TData[] data)
