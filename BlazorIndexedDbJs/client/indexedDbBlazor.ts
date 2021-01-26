@@ -394,7 +394,7 @@ export class IndexedDbManager {
 
         for (var index of store.indexes) {
             newStore.createIndex(index.name,
-                index.keyPath ?? primaryKey.multiKeyPath ?? index.name,
+                index.keyPath ?? index.multiKeyPath ?? index.name,
                 {
                     multiEntry: index.multiEntry,
                     unique: index.unique
