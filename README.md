@@ -61,11 +61,6 @@ other functions
 public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
-### todo
-
-at the moment does not support aggregate keys.
-
-
 ## Using the library
 
 ### requires 
@@ -151,7 +146,12 @@ namespace BlazorIndexedDbJsClientDemo.Data
                         Name="lastName",
                         KeyPath = "lastName",
                         Auto=false
-                    }
+                    },
+                    new IDBIndex
+                    {
+                        Name="fullname",
+                        MultiKeyPath = new string[] { "firstName", "lastName" }
+                    }                    
                 }
             });
         }
