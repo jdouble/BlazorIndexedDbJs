@@ -64,16 +64,24 @@ For blazor server, in `Pages/_Host.cshtml`
 ### 3. create a database definition
 
 ```CSharp
-    public class TheFactoryDb: IndexedDbDatabase
+using System.Collections.Generic;
+using Microsoft.JSInterop;
+using BlazorIndexedDbJs;
+
+namespace BlazorIndexedDbJsClientDemo.Data
+
+    public class TheFactoryDb: IndexedDbManager
     {
+        public TheFactoryDb(IJSRuntime jsRuntime): base(jsRuntime) {}
+
         public const string Employees = "Employees";
 
-        public override void OnConfiguring()
+        protected override void OnConfiguring(IndexedDbDatabase database)
         {
-            Name = "TheFactory";
-            Version = 1;
+            database.Name = "TheFactory";
+            database.Version = 1;
 
-            ObjectStores.Add(new IndexedDbObjectStore
+            database.ObjectStores.Add(new IndexedDbObjectStore
             {
                 Name = Employees,
                 PrimaryKey = new IndexedDbIndex
@@ -100,6 +108,7 @@ For blazor server, in `Pages/_Host.cshtml`
             });
         }
     }
+}
 ```
 
 #### Step 1 - define the database
@@ -133,7 +142,7 @@ For blazor wasm, in `startup.cs`
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-            builder.Services.AddScoped<IndexedDbManager<TheFactoryDb>>();
+            builder.Services.AddScoped<TheFactoryDb>();
 
             await builder.Build().RunAsync();
         }
@@ -148,7 +157,7 @@ For blazor server, in `program.cs`
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
 
-            services.AddScoped<IndexedDbManager<TheFactoryDb>>();
+            services.AddScoped<TheFactoryDb>();
         }
 ```
 
@@ -174,7 +183,7 @@ And the data store name is "Employees"
 To use IndexedDB in a component or page first inject the IndexedDbManager instance.
 
 ```CSharp
-@inject IndexedDBManager<TheFactoryDb> theFactoryDb
+@inject TheFactoryDb theFactoryDb
 ```
 
 ### Setting up notifications
