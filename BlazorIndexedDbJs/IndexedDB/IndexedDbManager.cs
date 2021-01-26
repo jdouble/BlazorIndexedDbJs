@@ -9,7 +9,7 @@ namespace BlazorIndexedDbJs
     /// <summary>
     /// Provides functionality for accessing IndexedDB from Blazor application
     /// </summary>
-    public class IndexedDbManager<TDatabase> where TDatabase : IndexedDbDatabase, new()
+    public abstract class IndexedDbManager
     {
         private struct DbFunctions
         {
@@ -43,9 +43,15 @@ namespace BlazorIndexedDbJs
         public IndexedDbManager(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            _database = new TDatabase();
-            _database.OnConfiguring();
+            _database = new IndexedDbDatabase();
+            OnConfiguring(_database);
         }
+
+        /// <summary>
+        /// This mus be overrided in descendant classes
+        /// </summary>
+        /// <param name="database"></param>
+        protected abstract void OnConfiguring(IndexedDbDatabase database);
 
         public List<IndexedDbObjectStore> ObjectStores => _database.ObjectStores;
         public int Version => _database.Version;

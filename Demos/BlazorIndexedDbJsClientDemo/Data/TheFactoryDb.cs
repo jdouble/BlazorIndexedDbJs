@@ -4,16 +4,18 @@ using BlazorIndexedDbJs;
 
 namespace BlazorIndexedDbJsClientDemo.Data
 {
-    public class TheFactoryDb: IndexedDbDatabase
+    public class TheFactoryDb: IndexedDbManager
     {
+        public TheFactoryDb(IJSRuntime jsRuntime): base(jsRuntime) {}
+
         public const string Employees = "Employees";
 
-        public override void OnConfiguring()
+        protected override void OnConfiguring(IndexedDbDatabase database)
         {
-            Name = "TheFactory";
-            Version = 1;
+            database.Name = "TheFactory";
+            database.Version = 1;
 
-            ObjectStores.Add(new IndexedDbObjectStore
+            database.ObjectStores.Add(new IndexedDbObjectStore
             {
                 Name = Employees,
                 PrimaryKey = new IndexedDbIndex

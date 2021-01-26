@@ -11,7 +11,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
     public partial class IndexedDbTest: ComponentBase, IDisposable
     {
         [Inject]
-        public IndexedDbManager<TheFactoryDb> DbManager {get; set; }
+        public TheFactoryDb DbManager {get; set; }
 
         private string Message { get; set; }
         private IList<Person> People { get; set; } = new List<Person>();
