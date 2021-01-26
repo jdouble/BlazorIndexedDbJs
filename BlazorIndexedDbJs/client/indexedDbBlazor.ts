@@ -85,12 +85,13 @@ export class IndexedDbManager {
 
     public getAllByArrayKey = async (storeName: string, key: any[]): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        const sx = tx.objectStore(storeName);
 
         let results: any[] = [];
 
         for (let index = 0; index < key.length; index++) {
             const element = key[index];
-            results.push(await tx.objectStore(storeName).get(element));
+            results.push(await sx.get(element));
         }
 
         await tx.complete;
@@ -108,44 +109,62 @@ export class IndexedDbManager {
         return result;
     }
 
-    public countAllByKeyRange = async (storeName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean): Promise<number> => {
+    public countByKeyRange = async (storeName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean): Promise<number> => {
         return await this.count(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
     }
 
     public getFromIndex = async (storeName: string, indexName: string, key: any): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
-        const results = await tx.objectStore(storeName)
-            .index(indexName)
-            .get(key);
+        const results = await tx.objectStore(storeName).index(indexName).get(key);
 
         await tx.complete;
 
         return results;
     }
 
-    public getAllFromIndex = async (storeName: string, indexName: string, key: any): Promise<any> => {
+    public getAllFromIndex = async (storeName: string, indexName: string, key?: any, count?: number): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
-        let results: any[] = [];
-
-        tx.objectStore(storeName)
-            .index(indexName)
-            .iterateCursor(cursor => {
-                if (!cursor) {
-                    return;
-                }
-
-                if (cursor.key === key) {
-                    results.push(cursor.value);
-                }
-
-                cursor.continue();
-            });
+        const results = await tx.objectStore(storeName).index(indexName).getAll(key ?? undefined, count ?? undefined);
 
         await tx.complete;
 
         return results;
+    }
+
+    public getAllFromIndexByKeyRange = async (storeName: string, indexName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean, count?: number): Promise<any> => {
+        return await this.getAllFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen), count);
+    }
+
+    public getAllFromIndexArrayKey = async (storeName: string, indexName: string, key: any[]): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        const dx = tx.objectStore(storeName).index(indexName);
+
+        let results: any[] = [];
+
+        for (let index = 0; index < key.length; index++) {
+            const element = key[index];
+            results.push(await dx.get(element));
+        }
+
+        await tx.complete;
+
+        return results;
+    }
+
+    public countFromIndex = async (storeName: string, indexName: string, key?: any): Promise<number> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+
+        let result = await tx.objectStore(storeName).index(indexName).count(key ?? undefined);
+
+        await tx.complete;
+
+        return result;
+    }
+
+    public countFromIndexByKeyRange = async (storeName: string, indexName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean): Promise<number> => {
+        return await this.countFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
     }
 
     public addRecord = async (storename: string, data: any, key?: any): Promise<string> => {
