@@ -11,7 +11,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
     public partial class IndexedDbTest: ComponentBase, IDisposable
     {
         [Inject]
-        public TheFactoryDb DbManager {get; set; }
+        public TheFactoryDb theFactoryDb {get; set; }
 
         private string Message { get; set; }
         private IList<Person> People { get; set; } = new List<Person>();
@@ -20,7 +20,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         protected override void OnInitialized()
         {
-            DbManager.ActionCompleted += OnIndexedDbNotification;
+            theFactoryDb.ActionCompleted += OnIndexedDbNotification;
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -33,7 +33,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         public void Dispose()
         {
-            DbManager.ActionCompleted -= OnIndexedDbNotification;
+            theFactoryDb.ActionCompleted -= OnIndexedDbNotification;
         }
 
         private async Task GetRecords(string firstName = "")
@@ -42,11 +42,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
             if (String.IsNullOrEmpty(firstName))
             {
-                results = await DbManager.GetRecords<Person>(TheFactoryDb.Employees);
+                results = await theFactoryDb.GetRecords<Person>(TheFactoryDb.Employees);
             }
             else
             {
-                results = await DbManager.GetAllRecordsByIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
+                results = await theFactoryDb.GetAllRecordsByIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
             }
 
 
@@ -67,7 +67,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                CurrentPerson = await DbManager.GetRecordById<long, Person>(TheFactoryDb.Employees, id);
+                CurrentPerson = await theFactoryDb.GetRecordById<long, Person>(TheFactoryDb.Employees, id);
             }
             catch (Exception e)
             {
@@ -80,11 +80,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             if (CurrentPerson.Id.HasValue)
             {
-                await DbManager.UpdateRecord(TheFactoryDb.Employees, CurrentPerson);
+                await theFactoryDb.UpdateRecord(TheFactoryDb.Employees, CurrentPerson);
             }
             else
             {
-                await DbManager.AddRecord(TheFactoryDb.Employees, CurrentPerson);
+                await theFactoryDb.AddRecord(TheFactoryDb.Employees, CurrentPerson);
             }
 
             CurrentPerson = new Person();
@@ -106,21 +106,21 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 list.Add(person);
             }
 
-            await DbManager.AddRecords<Person>(TheFactoryDb.Employees, list.ToArray());
+            await theFactoryDb.AddRecords<Person>(TheFactoryDb.Employees, list.ToArray());
 
             await GetRecords();
         }
 
         private async Task DeleteRecord(long? id)
         {
-            await DbManager.DeleteRecord(TheFactoryDb.Employees, id);
+            await theFactoryDb.DeleteRecord(TheFactoryDb.Employees, id);
 
             await GetRecords();
         }
 
         private async Task ClearStore()
         {
-            await DbManager.ClearStore(TheFactoryDb.Employees);
+            await theFactoryDb.ClearStore(TheFactoryDb.Employees);
 
             await GetRecords();
         }
