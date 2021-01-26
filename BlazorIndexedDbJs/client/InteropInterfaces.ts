@@ -27,9 +27,11 @@ export interface IIndexSearch {
 /**Index definition for a store */
 export interface IIndex {
     name: string;
-    keyPath: string;
-    unique?: boolean;
-    auto: boolean;
+    keyPath?: string;
+    multiKeyPath?: string[];
+    multiEntry: boolean;
+    unique: boolean;
+    autoIncrement: boolean;
 }
 
 export interface IInformation {

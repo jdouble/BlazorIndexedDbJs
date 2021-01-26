@@ -74,7 +74,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task OpenDb()
         {
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _database, new { Instance = DotNetObjectReference.Create(this), MethodName= "Callback"});
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _database);
             _isOpen = true;
             await GetCurrentDbState();
             RaiseNotification(DbFunctions.OpenDb, "", result);
@@ -88,6 +88,7 @@ namespace BlazorIndexedDbJs
         public async Task DeleteDb()
         {
             var result = await CallJavascript<string>(DbFunctions.DeleteDb, _database.Name);
+            _isOpen = false;
             RaiseNotification(DbFunctions.DeleteDb, "", result);
         }
 

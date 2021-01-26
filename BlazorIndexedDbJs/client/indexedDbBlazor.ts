@@ -382,13 +382,24 @@ export class IndexedDbManager {
         let primaryKey = store.primaryKey;
 
         if (!primaryKey) {
-            primaryKey = { name: 'id', keyPath: 'id', auto: true };
+            primaryKey = { name: 'id', keyPath: 'id', multiEntry: false, unique: false, autoIncrement: true };
         }
 
-        const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.keyPath, autoIncrement: primaryKey.auto });
+        const newStore = upgradeDB.createObjectStore(store.name,
+            {
+                keyPath: primaryKey.keyPath ?? primaryKey.multiKeyPath,
+                autoIncrement: primaryKey.autoIncrement
+            }
+        );
 
         for (var index of store.indexes) {
-            newStore.createIndex(index.name, index.keyPath, { unique: index.unique });
+            newStore.createIndex(index.name,
+                index.keyPath ?? primaryKey.multiKeyPath ?? index.name,
+                {
+                    multiEntry: index.multiEntry,
+                    unique: index.unique
+                }
+            );
         }
     }
 }

@@ -60,6 +60,8 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 People.Clear();
                 Message = "No Records found";
             }
+
+            StateHasChanged();
         }
 
         private async Task ClearStore()

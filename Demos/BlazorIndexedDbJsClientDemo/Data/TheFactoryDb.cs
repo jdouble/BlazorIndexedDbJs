@@ -22,21 +22,24 @@ namespace BlazorIndexedDbJsClientDemo.Data
                 {
                     Name = "id",
                     KeyPath = "id",
-                    Auto = true
+                    AutoIncrement = true
                 },
                 Indexes = new List<IDBIndex>
                 {
                     new IDBIndex
                     {
                         Name="firstName",
-                        KeyPath = "firstName",
-                        Auto=false
+                        KeyPath = "firstName"
                     },
                     new IDBIndex
                     {
                         Name="lastName",
-                        KeyPath = "lastName",
-                        Auto=false
+                        KeyPath = "lastName"
+                    },
+                    new IDBIndex
+                    {
+                        Name="fullname",
+                        MultiKeyPath = new string[] { "firstName", "lastName" }
                     }
                 }
             });
