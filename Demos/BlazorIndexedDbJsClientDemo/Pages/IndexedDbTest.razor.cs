@@ -104,7 +104,15 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async Task GetByFilter()
         {
-            People = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "return obj.firstName.startsWith('person');", 10, 10);
+            try
+            {
+                var filter = $"return obj.firstName.toLowerCase().includes('{SearchFirstName.ToLower()}');";
+                People = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, filter);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
         }
 
         private async Task EditPerson(long id)
@@ -113,9 +121,9 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             {
                 CurrentPerson = await theFactoryDb.Get<long, Person>(TheFactoryDb.Employees, id);
             }
-            catch (Exception e)
+            catch (IDBException e)
             {
-                Console.WriteLine(e.Message);
+                Message = e.Message;
             }
         }
 

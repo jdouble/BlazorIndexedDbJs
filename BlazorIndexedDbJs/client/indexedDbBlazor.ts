@@ -116,7 +116,11 @@ export class IndexedDbManager {
     public query = async (storeName: string, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
-        var func = new Function('obj', filter);
+        try {
+            var func = new Function('obj', filter);
+        } catch (e) {
+            throw `${(e as Error).message} in filter { ${filter} }`
+        }
 
         var row = 0;
         var error = "";
@@ -212,7 +216,11 @@ export class IndexedDbManager {
     public queryFromIndex = async (storeName: string, indexName: string, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
-        var func = new Function('obj', filter);
+        try {
+            var func = new Function('obj', filter);
+        } catch (e) {
+            throw `${(e as Error).message} in filter { ${filter} }`
+        }
 
         var row = 0;
         var error = "";

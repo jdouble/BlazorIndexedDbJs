@@ -8,32 +8,32 @@
 
 <div class="d-flex flex-row flex-wrap">
     <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:300px;">
-        <button class="btn btn-outline-primary mt-4" @onclick="RecreateDb">Recreate Database</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="ClearStore">Clear Store</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="AddRecords">Add 100 records</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="@( _ => GetAll())">Get All</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="@( _ => GetAll(10))">Get first 10 records</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="@( _ => GetByKey(7))">Get id=7</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="@( _ => GetByKeyArray(new int[] {7, 9, 11}))">Get id=7, 9, 11</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="@( _ => GetByKeyRange(7, 12))">Get id between 7 and 12</button>
-        <button class="btn btn-outline-primary mt-4" @onclick="@( _ => GetByFilter())">Filter record start with person</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="RecreateDb">Recreate Database</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="ClearStore">Clear Store</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="AddRecords">Add 100 records</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetAll())">Get All</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetAll(10))">Get first 10 records</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetByKey(7))">Get id=7</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetByKeyArray(new int[] {7, 9, 11}))">Get id=7, 9, 11</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetByKeyRange(7, 12))">Get id between 7 and 12</button>
     </div>
 
     <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:300px;">
-        <div class="m-4">
+        <div class="mt-2">
             <label>First Name</label> <input id="searchFirstName" type="text" @bind="@SearchFirstName" />
         </div>
-        <button class="btn btn-primary m-4" @onclick="SearchRecords">Search</button>
+        <button class="btn btn-primary mt-4" @onclick="SearchRecords">Search by key</button>
+        <button class="btn btn-primary mt-4" @onclick="GetByFilter">Sear by query</button>
     </div>
 
     <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:300px;">
-        <div class="m-4">
+        <div class="mt-2">
             <label>First Name</label> <input id="firstName" type="text" @bind="@CurrentPerson.FirstName" />
         </div>
-        <div class="m-4">
+        <div class="mt-2">
             <label>Last Name</label> <input id="lastName" type="text" @bind="@CurrentPerson.LastName" />
         </div>
-        <button class="btn btn-primary m-4" @onclick="AddRecord">Add/Update Record</button>
+        <button class="btn btn-primary mt-2" @onclick="AddRecord">Add/Update Record</button>
     </div>
 </div>
 
