@@ -9,354 +9,443 @@ export class IndexedDbManager {
 
     constructor() { }
 
+    private checkOpened() {
+        if (!this.dbInstance) {
+            throw 'Database is closed';
+        }
+    }
+
     public openDb = async (database: IDatabase): Promise<string> => {
+        var upgradeError = "";
+
         try {
             if (!this.dbInstance || this.dbInstance.version < database.version) {
                 if (this.dbInstance) {
                     this.dbInstance.close();
+                    this.dbInstance = undefined;
                 }
                 this.dbInstance = await idb.open(database.name, database.version, upgradeDB => {
-                    this.upgradeDatabase(upgradeDB, database);
+                    try {
+                        this.upgradeDatabase(upgradeDB, database);
+                    } catch (error) {
+                        upgradeError = error.toString();
+                        throw(error);
+                    }
                 });
             }
-        } catch (e) {
-            this.dbInstance = await idb.open(database.name);
-        }
 
-        return `IndexedDB ${database.name} opened`;
+            return `IndexedDB ${database.name} opened`;
+        } catch (error) {
+            throw error.toString()+' '+upgradeError;
+        }
     }
 
     public deleteDb = async(dbName: string): Promise<string> => {
-        this.dbInstance.close();
+        try {
+            this.checkOpened();
 
-        await idb.delete(dbName);
+            this.dbInstance.close();
 
-        this.dbInstance = undefined;
+            await idb.delete(dbName);
 
-        return `The database ${dbName} has been deleted`;
+            this.dbInstance = undefined;
+
+            return `The database ${dbName} has been deleted`;
+        } catch (error) {
+            throw `Database ${dbName}, ${error.toString()}`;
+        }
     }
 
     public getDbInfo = async (dbName: string) : Promise<IInformation> => {
-        if (!this.dbInstance) {
-            this.dbInstance = await idb.open(dbName);
-        }
+        try {
+            this.checkOpened();
 
-        const currentDb = <DB>this.dbInstance;
+            const currentDb = <DB>this.dbInstance;
 
-        let getStoreNames = (list: DOMStringList): string[] => {
-            let names: string[] = [];
-            for (var i = 0; i < list.length; i++) {
-                names.push(list[i]);
+            let getStoreNames = (list: DOMStringList): string[] => {
+                let names: string[] = [];
+                for (var i = 0; i < list.length; i++) {
+                    names.push(list[i]);
+                }
+                return names;
             }
-            return names;
-        }
-        const dbInfo: IInformation = {
-            version: currentDb.version,
-            objectStoreNames: getStoreNames(currentDb.objectStoreNames)
-        };
+            const dbInfo: IInformation = {
+                version: currentDb.version,
+                objectStoreNames: getStoreNames(currentDb.objectStoreNames)
+            };
 
-        return dbInfo;
+            return dbInfo;
+        } catch (error) {
+            throw `Database ${dbName}, ${error.toString()}`;
+        }
     }
 
-    public get = async (storename: string, key: any): Promise<any> => {
+    public get = async (storeName: string, key: any): Promise<any> => {
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        const tx = this.getTransaction(this.dbInstance, storename, 'readonly');
+            let result = await tx.objectStore(storeName).get(key);
 
-        let result = await tx.objectStore(storename).get(key);
+            await tx.complete;
 
-        await tx.complete;
-
-        return result;
+            return result;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
     public getAll = async (storeName: string, key?: any, count?: number): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        let results = await tx.objectStore(storeName).getAll(key ?? undefined, count ?? undefined);
+            let results = await tx.objectStore(storeName).getAll(key ?? undefined, count ?? undefined);
 
-        await tx.complete;
+            await tx.complete;
 
-        return results;
+            return results;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
     public getAllByKeyRange = async (storeName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean, count?: number): Promise<any> => {
-        return await this.getAll(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen), count);
+        try {
+            return await this.getAll(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen), count);
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
     public getAllByArrayKey = async (storeName: string, key: any[]): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-        const sx = tx.objectStore(storeName);
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
+            const sx = tx.objectStore(storeName);
 
-        let results: any[] = [];
+            let results: any[] = [];
 
-        for (let index = 0; index < key.length; index++) {
-            const element = key[index];
-            results.push(await sx.get(element));
+            for (let index = 0; index < key.length; index++) {
+                const element = key[index];
+                results.push(await sx.get(element));
+            }
+
+            await tx.complete;
+
+            return results;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
         }
-
-        await tx.complete;
-
-        return results;
     }
 
     public count = async (storeName: string, key?: any): Promise<number> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        let result = await tx.objectStore(storeName).count(key ?? undefined);
+            let result = await tx.objectStore(storeName).count(key ?? undefined);
 
-        await tx.complete;
+            await tx.complete;
 
-        return result;
+            return result;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
     public countByKeyRange = async (storeName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean): Promise<number> => {
-        return await this.count(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
+        try {
+            return await this.count(storeName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
     public query = async (storeName: string, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-
         try {
-            var func = new Function('obj', filter);
-        } catch (e) {
-            throw `${(e as Error).message} in filter { ${filter} }`
-        }
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        var row = 0;
-        var error = "";
+            try {
+                var func = new Function('obj', filter);
+            } catch (error) {
+                throw `${error.toString()} in filter { ${filter} }`
+            }
 
-        let results: any[] = [];
+            var row = 0;
+            var errorMessage = "";
 
-        tx.objectStore(storeName)
-            .iterateCursor(cursor => {
-                if (!cursor) {
-                    return;
-                }
-                try {
-                    if (func(cursor.value)) {
-                        row ++;
-                        if (row > skip) {
-                            results.push(cursor.value);
+            let results: any[] = [];
+
+            tx.objectStore(storeName)
+                .iterateCursor(cursor => {
+                    if (!cursor) {
+                        return;
+                    }
+                    try {
+                        if (func(cursor.value)) {
+                            row ++;
+                            if (row > skip) {
+                                results.push(cursor.value);
+                            }
                         }
                     }
-                }
-                catch (e) {
-                    error = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${(e as Error).message}`;
-                    return;
-                }
-                if (count > 0 && results.length >= count) {
-                    return;
-                }
-                cursor.continue();
-            });
+                    catch (error) {
+                        errorMessage = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${error.toString()}`;
+                        return;
+                    }
+                    if (count > 0 && results.length >= count) {
+                        return;
+                    }
+                    cursor.continue();
+                });
 
-        await tx.complete;
+            await tx.complete;
 
-        if (error) {
-            throw error;
+            if (errorMessage) {
+                throw errorMessage;
+            }
+
+            return results;
+        } catch (error) {
+            throw `Store ${storeName} ${error.toString()}`;
         }
-
-        return results;
     }
 
     public getFromIndex = async (storeName: string, indexName: string, key: any): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        const results = await tx.objectStore(storeName).index(indexName).get(key);
+            const results = await tx.objectStore(storeName).index(indexName).get(key);
 
-        await tx.complete;
+            await tx.complete;
 
-        return results;
+            return results;
+        } catch (error) {
+            throw `Store ${storeName}, Index ${indexName}, ${error.toString()}`;
+        }
     }
 
     public getAllFromIndex = async (storeName: string, indexName: string, key?: any, count?: number): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        const results = await tx.objectStore(storeName).index(indexName).getAll(key ?? undefined, count ?? undefined);
+            const results = await tx.objectStore(storeName).index(indexName).getAll(key ?? undefined, count ?? undefined);
 
-        await tx.complete;
+            await tx.complete;
 
-        return results;
+            return results;
+        } catch (error) {
+            throw `Store ${storeName}, Index ${indexName}, ${error.toString()}`;
+        }
     }
 
     public getAllFromIndexByKeyRange = async (storeName: string, indexName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean, count?: number): Promise<any> => {
-        return await this.getAllFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen), count);
+        try {
+            return await this.getAllFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen), count);
+        } catch (error) {
+            throw `Store ${storeName}, Index ${indexName}, ${error.toString()}`;
+        }
     }
 
     public getAllFromIndexArrayKey = async (storeName: string, indexName: string, key: any[]): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-        const dx = tx.objectStore(storeName).index(indexName);
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
+            const dx = tx.objectStore(storeName).index(indexName);
 
-        let results: any[] = [];
+            let results: any[] = [];
 
-        for (let index = 0; index < key.length; index++) {
-            const element = key[index];
-            results.push(await dx.get(element));
+            for (let index = 0; index < key.length; index++) {
+                const element = key[index];
+                results.push(await dx.get(element));
+            }
+
+            await tx.complete;
+
+            return results;
+        } catch (error) {
+            throw `Store ${storeName}, Index ${indexName}, ${error.toString()}`;
         }
-
-        await tx.complete;
-
-        return results;
     }
 
     public countFromIndex = async (storeName: string, indexName: string, key?: any): Promise<number> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        let result = await tx.objectStore(storeName).index(indexName).count(key ?? undefined);
+            let result = await tx.objectStore(storeName).index(indexName).count(key ?? undefined);
 
-        await tx.complete;
+            await tx.complete;
 
-        return result;
+            return result;
+        } catch (error) {
+            throw `Store ${storeName}, Index ${indexName}, ${error.toString()}`;
+        }
     }
 
     public countFromIndexByKeyRange = async (storeName: string, indexName: string, lower: any, upper: any, lowerOpen: boolean, upperOpen: boolean): Promise<number> => {
-        return await this.countFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
+        try {
+            return await this.countFromIndex(storeName, indexName, IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen));
+        } catch (error) {
+            throw `Store ${storeName}, Index ${indexName}, ${error.toString()}`;
+        }
     }
 
     public queryFromIndex = async (storeName: string, indexName: string, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-
         try {
-            var func = new Function('obj', filter);
-        } catch (e) {
-            throw `${(e as Error).message} in filter { ${filter} }`
-        }
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-        var row = 0;
-        var error = "";
+            try {
+                var func = new Function('obj', filter);
+            } catch (error) {
+                throw `${error.toString()} in filter { ${filter} }`
+            }
 
-        let results: any[] = [];
+            var row = 0;
+            var errorMessage = "";
 
-        tx.objectStore(storeName)
-            .index(indexName)
-            .iterateCursor(cursor => {
-                if (!cursor) {
-                    return;
-                }
-                try {
-                    if (func(cursor.value)) {
-                        row ++;
-                        if (row > skip) {
-                            results.push(cursor.value);
+            let results: any[] = [];
+
+            tx.objectStore(storeName)
+                .index(indexName)
+                .iterateCursor(cursor => {
+                    if (!cursor) {
+                        return;
+                    }
+                    try {
+                        if (func(cursor.value)) {
+                            row ++;
+                            if (row > skip) {
+                                results.push(cursor.value);
+                            }
                         }
                     }
-                }
-                catch (e) {
-                    error = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${(e as Error).message}`;
-                    return;
-                }
-                if (count > 0 && results.length >= count) {
-                    return;
-                }
-                cursor.continue();
+                    catch (error) {
+                        errorMessage = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${error.toString()}`;
+                        return;
+                    }
+                    if (count > 0 && results.length >= count) {
+                        return;
+                    }
+                    cursor.continue();
+                });
+
+            await tx.complete;
+
+            if (errorMessage) {
+                throw errorMessage;
+            }
+
+            return results;
+        } catch (error) {
+            throw `Store ${storeName}, Index ${indexName}, ${error.toString()}`;
+        }
+    }
+
+    public add = async (storeName: string, data: any, key?: any): Promise<string> => {
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readwrite');
+            const objectStore = tx.objectStore(storeName);
+
+            data = this.checkForKeyPath(objectStore, data);
+
+            const result = await objectStore.add(data, key ?? undefined);
+
+            await tx.complete;
+
+            return `Added new record with id ${result}`;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
+    }
+
+    public put = async (storeName: string, data: any, key?: any): Promise<string> => {
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readwrite');
+
+            const result = await tx.objectStore(storeName).put(data, key ?? undefined);
+
+            await tx.complete;
+
+            return `updated record with id ${result}`;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
+    }
+
+    public delete = async (storeName: string, id: any): Promise<string> => {
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readwrite');
+
+            await tx.objectStore(storeName).delete(id);
+
+            await tx.complete;
+
+            return `Record with id: ${id} deleted`;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
+    }
+
+    public batchAdd = async (storeName: string, data: any[]): Promise<string> => {
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readwrite');
+            const objectStore = tx.objectStore(storeName);
+
+            data.forEach(async element => {
+                let item = this.checkForKeyPath(objectStore, element);
+                await objectStore.add(item);
             });
 
-        await tx.complete;
+            await tx.complete;
 
-        if (error) {
-            throw error;
+            return `Added ${data.length} records`;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
         }
-
-        return results;
     }
 
-    public add = async (storename: string, data: any, key?: any): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-        const objectStore = tx.objectStore(storename);
+    public batchPut = async (storeName: string, data: any[]): Promise<string> => {
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
-        data = this.checkForKeyPath(objectStore, data);
+            data.forEach(async element => {
+                await tx.objectStore(storeName).put(element);
+            });
 
-        const result = await objectStore.add(data, key ?? undefined);
+            await tx.complete;
 
-        await tx.complete;
-
-        return `Added new record with id ${result}`;
+            return `updated ${data.length} records`;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
-    public put = async (storename: string, data: any, key?: any): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
+    public batchDelete = async (storeName: string, ids: any[]): Promise<string> => {
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
-        const result = await tx.objectStore(storename).put(data, key ?? undefined);
+            ids.forEach(async element => {
+                await tx.objectStore(storeName).delete(element);
+            });
 
-        await tx.complete;
+            await tx.complete;
 
-        return `updated record with id ${result}`;
-    }
-
-    public delete = async (storename: string, id: any): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-
-        await tx.objectStore(storename).delete(id);
-
-        await tx.complete;
-
-        return `Record with id: ${id} deleted`;
-    }
-
-    public batchAdd = async (storename: string, data: any[]): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-        const objectStore = tx.objectStore(storename);
-
-        data.forEach(async element => {
-            let item = this.checkForKeyPath(objectStore, element);
-            await objectStore.add(item);
-        });
-
-        await tx.complete;
-
-        return `Added ${data.length} records`;
-    }
-
-    public batchPut = async (storename: string, data: any[]): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-
-        data.forEach(async element => {
-            await tx.objectStore(storename).put(element);
-        });
-
-        await tx.complete;
-
-        return `updated ${data.length} records`;
-    }
-
-    public batchDelete = async (storename: string, ids: any[]): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-
-        ids.forEach(async element => {
-            await tx.objectStore(storename).delete(element);
-        });
-
-        await tx.complete;
-
-        return `Deleted ${ids.length} records`;
+            return `Deleted ${ids.length} records`;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
     public clearStore = async (storeName: string): Promise<string> => {
-        const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
+        try {
+            const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
-        await tx.objectStore(storeName).clear();
+            await tx.objectStore(storeName).clear();
 
-        await tx.complete;
+            await tx.complete;
 
-        return `Store ${storeName} cleared`;
+            return `Store ${storeName} cleared`;
+        } catch (error) {
+            throw `Store ${storeName}, ${error.toString()}`;
+        }
     }
 
-    private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
-        const tx = dbInstance.transaction(stName, mode);
-        tx.complete.catch(
-            err => {
-                if (err) {
-                    console.error((err as Error).message);
-                } else {
-                    console.error('Undefined error in getTransaction()');
-                }
-
-            });
-
-        return tx;
-    }
-
-    // Currently don't support aggregate keys
     private checkForKeyPath(objectStore: ObjectStore<any, any>, data: any) {
         if (!objectStore.autoIncrement || !objectStore.keyPath) {
             return data;
@@ -374,10 +463,10 @@ export class IndexedDbManager {
         return data;
     }
 
-    private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDatabase) {
-        if (upgradeDB.oldVersion < dbStore.version) {
-            if (dbStore.objectStores) {
-                for (var store of dbStore.objectStores) {
+    private upgradeDatabase(upgradeDB: UpgradeDB, dbDatabase: IDatabase) {
+        if (upgradeDB.oldVersion < dbDatabase.version) {
+            if (dbDatabase.objectStores) {
+                for (var store of dbDatabase.objectStores) {
                     if (!upgradeDB.objectStoreNames.contains(store.name)) {
                         this.addNewStore(upgradeDB, store);
                     }
@@ -397,27 +486,37 @@ export class IndexedDbManager {
     }
 
     private addNewStore(upgradeDB: UpgradeDB, store: IObjectStore) {
-        let primaryKey = store.primaryKey;
+        try {
+            let primaryKey = store.primaryKey;
 
-        if (!primaryKey) {
-            primaryKey = { name: 'id', keyPath: 'id', multiEntry: false, unique: false, autoIncrement: true };
-        }
-
-        const newStore = upgradeDB.createObjectStore(store.name,
-            {
-                keyPath: this.getKeyPath(primaryKey.keyPath),
-                autoIncrement: primaryKey.autoIncrement
+            if (!primaryKey) {
+                primaryKey = { name: 'id', keyPath: 'id', multiEntry: false, unique: false, autoIncrement: true };
             }
-        );
 
-        for (var index of store.indexes) {
-            newStore.createIndex(index.name,
-                this.getKeyPath(index.keyPath) ?? index.name,
+            const newStore = upgradeDB.createObjectStore(store.name,
                 {
-                    multiEntry: index.multiEntry,
-                    unique: index.unique
+                    keyPath: this.getKeyPath(primaryKey.keyPath),
+                    autoIncrement: primaryKey.autoIncrement
                 }
             );
+
+            for (var index of store.indexes) {
+                try {
+
+                    newStore.createIndex(index.name,
+                        this.getKeyPath(index.keyPath) ?? index.name,
+                        {
+                            multiEntry: index.multiEntry,
+                            unique: index.unique
+                        }
+                    );
+                } catch (error) {
+                    throw `index ${index.name}, ${error.toString()}`;
+                }
+            }
+        }
+        catch (error) {
+            throw `store ${store.name}, ${error.toString()}`;
         }
     }
 }

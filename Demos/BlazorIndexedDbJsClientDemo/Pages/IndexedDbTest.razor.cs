@@ -39,26 +39,33 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async Task GetRecords(string firstName = "", int? count = null)
         {
-            IList<Person> results;
+            try
+            {
+                IList<Person> results;
 
-            if (String.IsNullOrEmpty(firstName))
-            {
-                results = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
-            }
-            else
-            {
-                results = await theFactoryDb.GetAllFromIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
-            }
+                if (String.IsNullOrEmpty(firstName))
+                {
+                    results = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
+                }
+                else
+                {
+                    results = await theFactoryDb.GetAllFromIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
+                }
 
 
-            if (results != null && results.Any())
-            {
-                People = results;
+                if (results != null && results.Any())
+                {
+                    People = results;
+                }
+                else
+                {
+                    People.Clear();
+                    Message = "No Records found";
+                }
             }
-            else
+            catch (IDBException e)
             {
-                People.Clear();
-                Message = "No Records found";
+                Message = e.Message;
             }
 
             StateHasChanged();
@@ -73,24 +80,51 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async Task RecreateDb()
         {
-            await theFactoryDb.DeleteDb();
-
+            try
+            {
+                await theFactoryDb.DeleteDb();
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
             await GetRecords();
         }
 
         private async Task GetAll(int? count = null)
         {
-            People = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
+            try
+            {
+                People = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
         }
 
         private async Task GetByKey(int key, int? count = null)
         {
-            People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key, count);
+            try
+            {
+                People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key, count);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
         }
 
         private async Task GetByKeyArray(int[] key)
         {
-            People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key);
+            try
+            {
+                People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
         }
 
         private async Task GetByKeyRange(int lower, int upper, int? count = null)
@@ -99,7 +133,14 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 Lower = lower,
                 Upper = upper
             };
-            People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, range, count);
+            try
+            {
+                People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, range, count);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
         }
 
         private async Task GetByFilter()
@@ -129,16 +170,23 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async void AddRecord()
         {
-            if (CurrentPerson.Id.HasValue)
+            try
             {
-                await theFactoryDb.Put(TheFactoryDb.Employees, CurrentPerson);
-            }
-            else
-            {
-                await theFactoryDb.Add(TheFactoryDb.Employees, CurrentPerson);
-            }
+                if (CurrentPerson.Id.HasValue)
+                {
+                    await theFactoryDb.Put(TheFactoryDb.Employees, CurrentPerson);
+                }
+                else
+                {
+                    await theFactoryDb.Add(TheFactoryDb.Employees, CurrentPerson);
+                }
 
-            CurrentPerson = new Person();
+                CurrentPerson = new Person();
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
 
             await GetRecords();
         }
@@ -164,7 +212,14 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async Task DeleteRecord(long? id)
         {
-            await theFactoryDb.Delete(TheFactoryDb.Employees, id);
+            try
+            {
+                await theFactoryDb.Delete(TheFactoryDb.Employees, id);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
 
             await GetRecords();
         }
