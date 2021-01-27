@@ -8,7 +8,7 @@
     <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
     <AssemblyName>BlazorIndexedDbJs</AssemblyName>
     <RootNamespace>BlazorIndexedDbJs</RootNamespace>
-    <Version>2.3.3</Version>
+    <Version>2.3.4</Version>
     <Authors>Christian Pradelli</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/kattunga/BlazorIndexedDbJs</RepositoryUrl>
@@ -48,7 +48,7 @@
     <Exec Command="npm install" />
   </Target>
 
-  <Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\indexedDb.Blazor.js" DependsOnTargets="EnsureNpmRestored">
+  <Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\BlazorIndexedDb.js" DependsOnTargets="EnsureNpmRestored">
     <Exec Command="npm run build:debug" Condition="'$(Configuration)' == 'Debug'" />
     <Exec Command="npm run build:production" Condition="'$(Configuration)' != 'Debug'" />
     <ItemGroup>

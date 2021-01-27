@@ -1,9 +1,9 @@
 ﻿import { IndexedDbManager } from './indexedDbBlazor';
 
 namespace IndexDb {
-    const timeghostExtensions: string = 'TimeGhost';
+    const timeghostExtensions: string = 'BlazorIndexedDbJs';
     const extensionObject = {
-        IndexedDbManager: new IndexedDbManager()
+        IDBManager: new IndexedDbManager()
     };
 
     export function initialise(): void {

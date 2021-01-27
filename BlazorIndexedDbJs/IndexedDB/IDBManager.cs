@@ -42,7 +42,7 @@ namespace BlazorIndexedDbJs
 
         private readonly IDBDatabase _database;
         private readonly IJSRuntime _jsRuntime;
-        private const string InteropPrefix = "TimeGhost.IndexedDbManager";
+        private const string InteropPrefix = "BlazorIndexedDbJs.IDBManager";
         private bool _isOpen;
 
         /// <summary>

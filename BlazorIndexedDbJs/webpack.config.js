@@ -15,7 +15,7 @@ module.exports = (env, args) =>({
         ]
     },
     entry: {
-        "indexedDb.Blazor": './client/InitialiseIndexDbBlazor.ts'
+        "BlazorIndexedDb": './client/InitialiseIndexDbBlazor.ts'
     },
     output: {
         path: path.join(__dirname, '/wwwroot'),
