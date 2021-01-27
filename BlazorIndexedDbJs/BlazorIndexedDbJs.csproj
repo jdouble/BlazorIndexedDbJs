@@ -8,9 +8,10 @@
     <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
     <AssemblyName>BlazorIndexedDbJs</AssemblyName>
     <RootNamespace>BlazorIndexedDbJs</RootNamespace>
-    <Version>2.3.6</Version>
+    <Version>2.3.7</Version>
     <Authors>Christian Pradelli</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Blazor IndexedDB Database</PackageTags>
     <RepositoryUrl>https://github.com/kattunga/BlazorIndexedDbJs</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <Description>A Blazor library for interacting with IndexedDB using jsInterop</Description>
