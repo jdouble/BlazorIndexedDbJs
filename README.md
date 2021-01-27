@@ -78,7 +78,7 @@ or
 dotnet add package BlazorIndexedDbJs
 ```
 
-### 2. Refence to indexedDb.Blazor.js library
+### 2. Refence to BlazorIndexedDb.js library
 
 For blazor wasm, in `wwwroot\index.html`
 ```html
