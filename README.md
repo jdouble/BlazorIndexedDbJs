@@ -245,8 +245,11 @@ var person = await theFactoryDb.Get<long, Person>("Employees", id);
 ```
 
 ### Query a IDBObjectStore using a filter expression
+The filter expression is the body of a function that receives de parameter `obj` than hadle each record of ObjectStore and
+must return true/false to indicate if record should be included in result set.
+
 ```CSharp
-var people = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "obj.firstName.endsWith('10')");
+var people = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "return obj.firstName.toLowerCase().includes('per');");
 ```
 
 ### getting one record using an index
