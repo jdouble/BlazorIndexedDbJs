@@ -129,7 +129,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
                 {
                     Name = "id",
                     KeyPath = "id",
-                    Auto = true
+                    AutoIncrement = true
                 },
                 Indexes = new List<IDBIndex>
                 {
@@ -137,18 +137,16 @@ namespace BlazorIndexedDbJsClientDemo.Data
                     {
                         Name="firstName",
                         KeyPath = "firstName",
-                        Auto=false
                     },
                     new IDBIndex
                     {
                         Name="lastName",
                         KeyPath = "lastName",
-                        Auto=false
                     },
                     new IDBIndex
                     {
                         Name="fullname",
-                        MultiKeyPath = new string[] { "firstName", "lastName" }
+                        KeyPath = "firstName","lastName"
                     }                    
                 }
             });
