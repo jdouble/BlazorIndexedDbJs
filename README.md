@@ -87,7 +87,7 @@ For blazor wasm, in `wwwroot\index.html`
     ...
     <script src="_framework/blazor.webassembly.js"></script>
 
-    <script src="_content/BlazorIndexedDbJs/indexedDb.Blazor.js"></script>
+    <script src="_content/BlazorIndexedDbJs/BlazorIndexedDb.js"></script>
 </body>
 ```
 
@@ -98,7 +98,7 @@ For blazor server, in `Pages/_Host.cshtml`
     ...
     <script src="_framework/blazor.server.js"></script>    
 
-    <script src="_content/BlazorIndexedDbJs/indexedDb.Blazor.js"></script>
+    <script src="_content/BlazorIndexedDbJs/BlazorIndexedDb.js"></script>
 </body>
 ```
 
