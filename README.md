@@ -87,7 +87,6 @@ For blazor wasm, in `wwwroot\index.html`
     ...
     <script src="_framework/blazor.webassembly.js"></script>
 
-    <!-- if you need to scan as soon as the app start, add this before _framework/blazor.webassembly.js -->
     <script src="_content/BlazorIndexedDbJs/indexedDb.Blazor.js"></script>
 </body>
 ```
@@ -99,7 +98,6 @@ For blazor server, in `Pages/_Host.cshtml`
     ...
     <script src="_framework/blazor.server.js"></script>    
 
-    <!-- if you need to scan as soon as the app start, add this before _framework/blazor.server.js -->
     <script src="_content/BlazorIndexedDbJs/indexedDb.Blazor.js"></script>
 </body>
 ```
