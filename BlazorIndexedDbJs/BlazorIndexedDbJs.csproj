@@ -8,7 +8,7 @@
     <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
     <AssemblyName>BlazorIndexedDbJs</AssemblyName>
     <RootNamespace>BlazorIndexedDbJs</RootNamespace>
-    <Version>2.3.4</Version>
+    <Version>2.3.5</Version>
     <Authors>Christian Pradelli</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/kattunga/BlazorIndexedDbJs</RepositoryUrl>

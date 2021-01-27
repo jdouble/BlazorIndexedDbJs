@@ -386,6 +386,16 @@ export class IndexedDbManager {
         }
     }
 
+    private getKeyPath(keyPath?: string): string | string[] | undefined {
+        if (keyPath) {
+            var multiKeyPath = keyPath.split(',');
+            return multiKeyPath.length > 1 ? multiKeyPath : keyPath;
+        }
+        else {
+            return undefined;
+        }
+    }
+
     private addNewStore(upgradeDB: UpgradeDB, store: IObjectStore) {
         let primaryKey = store.primaryKey;
 
@@ -395,14 +405,14 @@ export class IndexedDbManager {
 
         const newStore = upgradeDB.createObjectStore(store.name,
             {
-                keyPath: primaryKey.keyPath ?? primaryKey.multiKeyPath,
+                keyPath: this.getKeyPath(primaryKey.keyPath),
                 autoIncrement: primaryKey.autoIncrement
             }
         );
 
         for (var index of store.indexes) {
             newStore.createIndex(index.name,
-                index.keyPath ?? index.multiKeyPath ?? index.name,
+                this.getKeyPath(index.keyPath) ?? index.name,
                 {
                     multiEntry: index.multiEntry,
                     unique: index.unique

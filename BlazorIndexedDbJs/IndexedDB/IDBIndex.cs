@@ -12,13 +12,10 @@
 
         /// <summary>
         /// the identifier for the property in the object/record that is saved and is to be indexed.
+        /// can be multiple properties separated by comma
+        /// if null will default to index name
         /// </summary>
         public string? KeyPath { get; init; }
-
-        /// <summary>
-        /// the identifier for the property in the object/record that is saved and is to be indexed.
-        /// </summary>
-        public string[]? MultiKeyPath { get; init; }
 
         /// <summary>
         /// Affects how the index behaves when the result of evaluating the index's key path yields an array.

@@ -39,7 +39,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
                     new IDBIndex
                     {
                         Name="fullname",
-                        MultiKeyPath = new string[] { "firstName", "lastName" }
+                        KeyPath = "firstName,lastName"
                     }
                 }
             });

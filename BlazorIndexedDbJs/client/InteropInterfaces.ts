@@ -28,7 +28,6 @@ export interface IIndexSearch {
 export interface IIndex {
     name: string;
     keyPath?: string;
-    multiKeyPath?: string[];
     multiEntry: boolean;
     unique: boolean;
     autoIncrement: boolean;
