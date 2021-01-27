@@ -20,10 +20,12 @@
 
     <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:300px;">
         <div class="mt-2">
-            <label>First Name</label> <input id="searchFirstName" type="text" @bind="@SearchFirstName" />
+            <label>First Name</label> <input id="searchFirstName" type="text" @bind="@FirstNameFilter" />
+            <label>Last Name</label> <input id="searchLastName" type="text" @bind="@LastNameFilter" />
         </div>
-        <button class="btn btn-primary mt-4" @onclick="SearchRecords">Search by key</button>
-        <button class="btn btn-primary mt-4" @onclick="GetByFilter">Sear by query</button>
+        <button class="btn btn-primary mt-4" @onclick="SearchFirstName">Search FirstName using key</button>
+        <button class="btn btn-primary mt-4" @onclick="GetByFilter">Search FirstName containing</button>
+        <button class="btn btn-primary mt-4" @onclick="SearchFullName">Search FirstName+LastName using index</button>
     </div>
 
     <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:300px;">

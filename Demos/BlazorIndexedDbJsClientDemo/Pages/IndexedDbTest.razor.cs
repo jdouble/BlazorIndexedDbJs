@@ -16,7 +16,8 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         private string Message { get; set; }
         private IList<Person> People { get; set; } = new List<Person>();
         private Person CurrentPerson { get; set; } = new Person();
-        private string SearchFirstName;
+        private string FirstNameFilter;
+        private string LastNameFilter;
 
         protected override void OnInitialized()
         {
@@ -37,31 +38,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             theFactoryDb.ActionCompleted -= OnIndexedDbNotification;
         }
 
-        private async Task GetRecords(string firstName = "", int? count = null)
+        private async Task GetRecords(int? count = null)
         {
             try
             {
-                IList<Person> results;
-
-                if (String.IsNullOrEmpty(firstName))
-                {
-                    results = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
-                }
-                else
-                {
-                    results = await theFactoryDb.GetAllFromIndex<string, Person>(TheFactoryDb.Employees, "firstName", firstName);
-                }
-
-
-                if (results != null && results.Any())
-                {
-                    People = results;
-                }
-                else
-                {
-                    People.Clear();
-                    Message = "No Records found";
-                }
+                People = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
             }
             catch (IDBException e)
             {
@@ -147,7 +128,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                var filter = $"return obj.firstName.toLowerCase().includes('{SearchFirstName.ToLower()}');";
+                var filter = $"return obj.firstName.toLowerCase().includes('{FirstNameFilter.ToLower()}');";
                 People = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, filter);
             }
             catch (IDBException e)
@@ -224,9 +205,28 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             await GetRecords();
         }
 
-        private async Task SearchRecords()
+        private async Task SearchFirstName()
         {
-            await GetRecords(SearchFirstName);
+            try
+            {
+                People = await theFactoryDb.GetAllFromIndex<string, Person>(TheFactoryDb.Employees, "firstName", FirstNameFilter);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
+        }
+
+        private async Task SearchFullName()
+        {
+            try
+            {
+                People = await theFactoryDb.GetAllFromIndex<string[], Person>(TheFactoryDb.Employees, "fullName", new string[] { FirstNameFilter, LastNameFilter });
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
         }
 
         private void OnIndexedDbNotification(object sender, IDBManagerNotificationArgs args)

@@ -38,7 +38,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
                     },
                     new IDBIndex
                     {
-                        Name="fullname",
+                        Name="fullName",
                         KeyPath = "firstName,lastName"
                     }
                 }
