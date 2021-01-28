@@ -26,7 +26,10 @@ public async Task<int> Count<TKey>(string storeName, TKey key);
 public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key);
 
 public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue);
+```
 
+[`IDBIndex.getAll()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAll)
+```CSharp
 public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null);
 public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
 public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
@@ -40,30 +43,33 @@ public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, 
 public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key);
 ```
 
-[`IDBObjectStore.add()`](https://developer.mozilla.org/docs/Web/API/IDBObjectStore/add)
+[`IDBObjectStore.add()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add)
 ```CSharp
 public async Task Add<TData>(string storeName, TData data);
 public async Task Add<TData, TKey>(string storeName, TData data, TKey key);
 ```
 
-[`IDBObjectStore.put()`](https://developer.mozilla.org/docs/Web/API/IDBObjectStore/put)
+[`IDBObjectStore.put()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put)
 ```CSharp
 public async Task Put<TData>(string storeName, TData data);
 public async Task Put<TData, TKey>(string storeName, TData data, TKey key);
 ```
 
-[`IDBObjectStore.delete()`](https://developer.mozilla.org/docs/Web/API/IDBObjectStore/delete)
+[`IDBObjectStore.delete()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/delete)
 ```CSharp
 public async Task Delete<TKey>(string storeName, TKey key);
 ```
 
-Extra functions functions
+[`IDBObjectStore.clear()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/clear)
+```CSharp
+public async Task ClearStore(string storeName);
+```
+
+Batch functions
 ```CSharp
 public async Task BatchAdd<TData>(string storeName, TData[] data);
 public async Task BatchPut<TData>(string storeName, TData[] data);
 public async Task BatchDelete<TKey>(string storeName, TKey[] key);
-
-public async Task ClearStore(string storeName);
 ```
 
 query functions
