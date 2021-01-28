@@ -1,6 +1,5 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
-import idb from '../node_modules/idb/lib/idb';
-import { DB, UpgradeDB, ObjectStore, Transaction } from '../node_modules/idb/lib/idb';
+import { openDb, deleteDb, DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
 import { IDatabase, IIndexSearch, IIndex, IObjectStore, IInformation } from './InteropInterfaces';
 
 const E_DB_CLOSED: string = "Database is closed";
@@ -20,7 +19,7 @@ export class IndexedDbManager {
                     this.dbInstance.close();
                     this.dbInstance = undefined;
                 }
-                this.dbInstance = await idb.open(database.name, database.version, upgradeDB => {
+                this.dbInstance = await openDb(database.name, database.version, upgradeDB => {
                     try {
                         this.upgradeDatabase(upgradeDB, database);
                     } catch (error) {
@@ -42,7 +41,7 @@ export class IndexedDbManager {
 
             this.dbInstance.close();
 
-            await idb.delete(dbName);
+            await deleteDb(dbName);
 
             this.dbInstance = undefined;
 
@@ -154,7 +153,7 @@ export class IndexedDbManager {
 
             for (let index = 0; index < key.length; index++) {
                 const element = key[index];
-                results.push(await sx.getAll(element));
+                results = results.concat(await sx.getAll(element));
             }
 
             await tx.complete;
@@ -218,7 +217,7 @@ export class IndexedDbManager {
 
             for (let index = 0; index < key.length; index++) {
                 const element = key[index];
-                results.push(await sx.getAllKeys(element));
+                results = results.concat(await sx.getAllKeys(element));
             }
 
             await tx.complete;
@@ -360,7 +359,7 @@ export class IndexedDbManager {
 
             for (let index = 0; index < key.length; index++) {
                 const element = key[index];
-                results.push(await dx.getAll(element));
+                results = results.concat(await dx.getAll(element));
             }
 
             await tx.complete;
@@ -424,7 +423,7 @@ export class IndexedDbManager {
 
             for (let index = 0; index < key.length; index++) {
                 const element = key[index];
-                results.push(await dx.getAllKeys(element));
+                results = results.concat(await dx.getAllKeys(element));
             }
 
             await tx.complete;
