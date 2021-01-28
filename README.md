@@ -63,6 +63,10 @@ other functions
 public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
+## Demo
+
+Check simple Blazor WASM PWA demo in Demos/BlazorIndexedDbJsClientDemo/
+
 ## Using the library
 
 ### requires 
