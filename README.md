@@ -8,7 +8,10 @@ This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) lib
 
 It tries to implement IndexedDB API with same classes and function names when possible, so you can use public [documentation](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 
-## API functions
+## Functions
+Click on function title to go to oficial documentation
+
+#### IndexedDB API functions
 [`IDBFactory.open()`](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/open)
 ```CSharp
 public async Task Open();
@@ -107,14 +110,14 @@ public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string store
 public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
 ```
 
-IDBObjectStore Batch functions
+#### IDBObjectStore Batch functions
 ```CSharp
 public async Task BatchAdd<TData>(string storeName, TData[] data);
 public async Task BatchPut<TData>(string storeName, TData[] data);
 public async Task BatchDelete<TKey>(string storeName, TKey[] key);
 ```
 
-Advanced query functions
+#### Advanced query functions
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
