@@ -63,7 +63,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                await theFactoryDb.DeleteDb();
+                await theFactoryDb.DeleteDatabase();
             }
             catch (IDBException e)
             {

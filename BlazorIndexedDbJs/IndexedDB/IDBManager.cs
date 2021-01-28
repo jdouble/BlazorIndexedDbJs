@@ -13,9 +13,8 @@ namespace BlazorIndexedDbJs
     {
         private struct DbFunctions
         {
-            public const string CreateDb = "createDb";
-            public const string DeleteDb = "deleteDb";
-            public const string OpenDb = "openDb";
+            public const string Open = "open";
+            public const string DeleteDatabase = "deleteDatabase";
             public const string Count = "count";
             public const string CountByKeyRange = "countByKeyRange";
             public const string Get = "get";
@@ -25,6 +24,7 @@ namespace BlazorIndexedDbJs
             public const string GetKey = "getKey";
             public const string GetAllKeys = "getAllKeys";
             public const string GetAllKeysByKeyRange = "getAllKeysByKeyRange";
+            public const string GetAllKeysByArrayKey = "getAllKeysByArrayKey";
             public const string Query = "query";
             public const string CountFromIndex = "countFromIndex";
             public const string CountFromIndexByKeyRange = "countFromIndexByKeyRange";
@@ -78,12 +78,12 @@ namespace BlazorIndexedDbJs
         /// and create the stores defined in DbDatabase.
         /// </summary>
         /// <returns></returns>
-        public async Task OpenDb()
+        public async Task Open()
         {
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _database);
+            var result = await CallJavascript<string>(DbFunctions.Open, _database);
             _isOpen = true;
             await GetCurrentDbState();
-            RaiseNotification(DbFunctions.OpenDb, "", result);
+            RaiseNotification(DbFunctions.Open, "", result);
         }
 
         /// <summary>
@@ -91,16 +91,16 @@ namespace BlazorIndexedDbJs
         /// </summary>
         /// <param name="dbName">The name of database to delete</param>
         /// <returns></returns>
-        public async Task DeleteDb()
+        public async Task DeleteDatabase()
         {
-            var result = await CallJavascript<string>(DbFunctions.DeleteDb, _database.Name);
+            var result = await CallJavascript<string>(DbFunctions.DeleteDatabase, _database.Name);
             _isOpen = false;
-            RaiseNotification(DbFunctions.DeleteDb, "", result);
+            RaiseNotification(DbFunctions.DeleteDatabase, "", result);
         }
 
         private async Task GetCurrentDbState()
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<IDBDatabaseInformation>(DbFunctions.GetDbInfo, _database.Name);
             if (result.Version > _database.Version)
             {
@@ -134,7 +134,7 @@ namespace BlazorIndexedDbJs
             }
             _database.ObjectStores.Add(objectStore);
             _database.Version += 1;
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _database, new { Instance = DotNetObjectReference.Create(this), MethodName = "Callback" });
+            var result = await CallJavascript<string>(DbFunctions.Open, _database, new { Instance = DotNetObjectReference.Create(this), MethodName = "Callback" });
             _isOpen = true;
             RaiseNotification("createObjectStore", objectStore.Name, $"new store {objectStore.Name} added");
         }
@@ -146,7 +146,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> Count(string storeName)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<int>(DbFunctions.Count, storeName);
             RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
             return result;
@@ -161,7 +161,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> Count<TKey>(string storeName, TKey key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<int>(DbFunctions.Count, storeName, key);
             RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
             return result;
@@ -176,7 +176,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<int>(
                 DbFunctions.CountByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
             RaiseNotification(DbFunctions.CountByKeyRange, storeName, $"Retrieved {result} records from {storeName}");
@@ -193,7 +193,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<TResult?>(DbFunctions.Get, storeName, key);
             RaiseNotification(DbFunctions.Get, storeName, $"Retrieved 1 records from {storeName}");
             return result;
@@ -207,7 +207,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetAll, storeName, null, count);
             RaiseNotification(DbFunctions.GetAll, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
@@ -223,7 +223,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetAll, storeName, key, count);
             RaiseNotification(DbFunctions.GetAll, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
@@ -239,7 +239,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
             RaiseNotification(DbFunctions.GetAllByKeyRange, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
@@ -255,7 +255,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllByArrayKey, storeName, key);
             RaiseNotification(DbFunctions.GetAllByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
@@ -271,7 +271,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<TResult?> GetKey<TKey, TResult>(string storeName, TKey key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<TResult?>(DbFunctions.GetKey, storeName, key);
             RaiseNotification(DbFunctions.GetKey, storeName, $"Retrieved 1 key from {storeName}");
             return result;
@@ -285,7 +285,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeys<TResult>(string storeName, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllKeys, storeName, null, count);
             RaiseNotification(DbFunctions.GetAllKeys, storeName, $"Retrieved {results.Count} records keys from {storeName}");
             return results;
@@ -301,7 +301,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, TKey key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllKeys, storeName, key, count);
             RaiseNotification(DbFunctions.GetAllKeys, storeName, $"Retrieved {results.Count} records keys from {storeName}");
             return results;
@@ -317,9 +317,25 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllKeysByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
             RaiseNotification(DbFunctions.GetAllKeysByKeyRange, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records by ArrayKey in a given store.
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, TKey[] key)
+        {
+            await EnsureIsOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllKeysByArrayKey, storeName, key);
+            RaiseNotification(DbFunctions.GetAllKeysByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
         }
 
@@ -334,7 +350,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.Query, storeName, filter, count, skip);
             RaiseNotification(DbFunctions.Query, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
@@ -347,7 +363,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> CountFromIndex(string storeName, string indexName)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<int>(DbFunctions.CountFromIndex, storeName);
             RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
             return result;
@@ -362,7 +378,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<int>(DbFunctions.CountFromIndex, storeName, key);
             RaiseNotification(DbFunctions.CountFromIndex, storeName, $"Retrieved {result} records from {storeName}");
             return result;
@@ -377,7 +393,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<int>(
                 DbFunctions.CountFromIndexByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
             RaiseNotification(DbFunctions.CountFromIndexByKeyRange, storeName, $"Retrieved {result} records from {storeName}");
@@ -393,7 +409,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<TResult>(
                 DbFunctions.GetFromIndex, storeName, indexName, queryValue);
             RaiseNotification(DbFunctions.GetFromIndex, storeName, $"Retrieved 1 records from {storeName} index {indexName}");
@@ -410,7 +426,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllFromIndex, storeName, indexName, null, count);
             RaiseNotification(DbFunctions.GetAllFromIndex, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
@@ -429,7 +445,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllFromIndex, storeName, indexName, key, count);
             RaiseNotification(DbFunctions.GetAllFromIndex, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
@@ -448,7 +464,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllFromIndexByKeyRange, storeName, indexName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
             RaiseNotification(DbFunctions.GetAllFromIndexByKeyRange, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
@@ -466,7 +482,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllFromIndexByArrayKey, storeName, indexName, key);
             RaiseNotification(DbFunctions.GetAllFromIndexByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
@@ -482,7 +498,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<TResult> GetKeyFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<TResult>(
                 DbFunctions.GetKeyFromIndex, storeName, indexName, queryValue);
             RaiseNotification(DbFunctions.GetKeyFromIndex, storeName, $"Retrieved 1 key from {storeName} index {indexName}");
@@ -499,7 +515,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeysFromIndex<TResult>(string storeName, string indexName, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllKeysFromIndex, storeName, indexName, null, count);
             RaiseNotification(DbFunctions.GetAllKeysFromIndex, storeName, $"Retrieved {results.Count} keys from {storeName} index {indexName}");
@@ -518,7 +534,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllKeysFromIndex, storeName, indexName, key, count);
             RaiseNotification(DbFunctions.GetAllKeysFromIndex, storeName, $"Retrieved {results.Count} keys from {storeName} index {indexName}");
@@ -537,7 +553,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllKeysFromIndexByKeyRange, storeName, indexName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
             RaiseNotification(DbFunctions.GetAllKeysFromIndexByKeyRange, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
@@ -555,7 +571,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var results = await CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, storeName, indexName, filter, count, skip);
             RaiseNotification(DbFunctions.QueryFromIndex, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
@@ -570,7 +586,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task Add<TData>(string storeName, TData data)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.Add, storeName, data);
             RaiseNotification(DbFunctions.Add, storeName, result);
         }
@@ -585,7 +601,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task Add<TData, TKey>(string storeName, TData data, TKey key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.Add, storeName, data, key);
             RaiseNotification(DbFunctions.Add, storeName, result);
         }
@@ -599,7 +615,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task Put<TData>(string storeName, TData data)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.Put, storeName, data);
             RaiseNotification(DbFunctions.Put, storeName, result);
         }
@@ -615,7 +631,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task Put<TData, TKey>(string storeName, TData data, TKey key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.Put, storeName, data, key);
             RaiseNotification(DbFunctions.Put, storeName, result);
         }
@@ -629,7 +645,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task Delete<TKey>(string storeName, TKey key)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.Delete, storeName, key);
             RaiseNotification(DbFunctions.Delete, storeName, result);
         }
@@ -643,14 +659,14 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task BatchAdd<TData>(string storeName, TData[] data)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.BatchAdd, storeName, data);
             RaiseNotification(DbFunctions.BatchAdd, storeName, result);
         }
 
         public async Task BatchPut<TData>(string storeName, TData[] data)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.BatchPut, storeName, data);
             RaiseNotification(DbFunctions.BatchPut, storeName, result);
         }
@@ -664,7 +680,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task BatchDelete<TInput>(string storeName, TInput[] ids)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
             var result = await CallJavascript<string>(DbFunctions.BatchDelete, storeName, ids);
             RaiseNotification(DbFunctions.BatchDelete, storeName, result);
         }
@@ -676,7 +692,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task ClearStore(string storeName)
         {
-            await EnsureDbOpen();
+            await EnsureIsOpen();
                 var result =  await CallJavascript<string>(DbFunctions.ClearStore, storeName);
                 RaiseNotification(DbFunctions.ClearStore, storeName, result);
         }
@@ -705,9 +721,9 @@ namespace BlazorIndexedDbJs
             }
         }
 
-        private async Task EnsureDbOpen()
+        private async Task EnsureIsOpen()
         {
-            if (!_isOpen) await OpenDb();
+            if (!_isOpen) await Open();
         }
 
         private void RaiseNotification(string operation, string objectStore, string message)
