@@ -349,7 +349,7 @@ export class IndexedDbManager {
         }
     }
 
-    public getAllFromIndexArrayKey = async (storeName: string, indexName: string, key: any[]): Promise<any> => {
+    public getAllFromIndexByArrayKey = async (storeName: string, indexName: string, key: any[]): Promise<any> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -413,7 +413,7 @@ export class IndexedDbManager {
         }
     }
 
-    public getAllKeysFromIndexArrayKey = async (storeName: string, indexName: string, key: any[]): Promise<any> => {
+    public getAllKeysFromIndexByArrayKey = async (storeName: string, indexName: string, key: any[]): Promise<any> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 

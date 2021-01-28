@@ -35,6 +35,7 @@ namespace BlazorIndexedDbJs
             public const string GetKeyFromIndex = "getKeyFromIndex";
             public const string GetAllKeysFromIndex = "getAllKeysFromIndex";
             public const string GetAllKeysFromIndexByKeyRange = "getAllKeysFromIndexByKeyRange";
+            public const string GetAllKeysFromIndexByArrayKey = "getAllKeysFromIndexByArrayKey";
             public const string QueryFromIndex = "queryFromIndex";
             public const string Add = "add";
             public const string Put = "put";
@@ -557,6 +558,24 @@ namespace BlazorIndexedDbJs
             var results = await CallJavascript<List<TResult>>(
                 DbFunctions.GetAllKeysFromIndexByKeyRange, storeName, indexName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
             RaiseNotification(DbFunctions.GetAllKeysFromIndexByKeyRange, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="indexName"></param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key)
+        {
+            await EnsureIsOpen();
+            var results = await CallJavascript<List<TResult>>(
+                DbFunctions.GetAllKeysFromIndexByArrayKey, storeName, indexName, key);
+            RaiseNotification(DbFunctions.GetAllKeysFromIndexByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
             return results;
         }
 
