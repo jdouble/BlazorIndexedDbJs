@@ -8,6 +8,8 @@ This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) lib
 
 It tries to implement IndexedDB API with same classes and function names when possible, so you can use public [documentation](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 
+This library was originally a fork from [William Tulloch](https://github.com/wtulloch) library (Blazor.IndexedDB)[https://github.com/wtulloch/Blazor.IndexedDB].
+
 ## Functions
 Click on function title to go to oficial documentation
 
