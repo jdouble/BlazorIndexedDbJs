@@ -145,7 +145,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             try
             {
                 var filter = $"if (obj.firstName.toLowerCase().includes('{FirstNameFilter.ToLower()}')) return obj;";
-                People = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, filter);
+                People = await theFactoryDb.QueryFromIndex<Person>(TheFactoryDb.Employees, "lastName", filter);
             }
             catch (IDBException e)
             {

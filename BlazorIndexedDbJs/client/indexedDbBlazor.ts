@@ -84,7 +84,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let result = await tx.objectStore(storeName).count(key ?? undefined);
+            let result = await tx.store.count(key ?? undefined);
 
             await tx.done;
 
@@ -108,7 +108,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let result = await tx.objectStore(storeName).get(key);
+            let result = await tx.store.get(key);
 
             await tx.done;
 
@@ -124,7 +124,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let results = await tx.objectStore(storeName).getAll(key ?? undefined, count ?? undefined);
+            let results = await tx.store.getAll(key ?? undefined, count ?? undefined);
 
             await tx.done;
 
@@ -149,13 +149,12 @@ export class IndexedDbManager {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
-            const sx = tx.objectStore(storeName);
 
             let results: any[] = [];
 
             for (let index = 0; index < key.length; index++) {
                 const element = key[index];
-                results = results.concat(await sx.getAll(element));
+                results = results.concat(await tx.store.getAll(element));
             }
 
             await tx.done;
@@ -172,7 +171,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let result = await tx.objectStore(storeName).getKey(key);
+            let result = await tx.store.getKey(key);
 
             await tx.done;
 
@@ -188,7 +187,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let results = await tx.objectStore(storeName).getAllKeys(key ?? undefined, count ?? undefined);
+            let results = await tx.store.getAllKeys(key ?? undefined, count ?? undefined);
 
             await tx.done;
 
@@ -213,13 +212,12 @@ export class IndexedDbManager {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
-            const sx = tx.objectStore(storeName);
 
             let results: any[] = [];
 
             for (let index = 0; index < key.length; index++) {
                 const element = key[index];
-                results = results.concat(await sx.getAllKeys(element));
+                results = results.concat(await tx.store.getAllKeys(element));
             }
 
             await tx.done;
@@ -234,8 +232,6 @@ export class IndexedDbManager {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
-            const tx = this.dbInstance.transaction(storeName, 'readonly');
-
             try {
                 var func = new Function('obj', filter);
             } catch (error) {
@@ -247,7 +243,10 @@ export class IndexedDbManager {
 
             let results: any[] = [];
 
-            for await (const cursor of tx.objectStore(storeName)) {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
+
+            let cursor = await tx.store.openCursor();
+            while (cursor) {
                 if (!cursor) {
                     return;
                 }
@@ -267,7 +266,7 @@ export class IndexedDbManager {
                 if (count > 0 && results.length >= count) {
                     return;
                 }
-                cursor.continue();
+                cursor = await cursor.continue();
             }
 
             await tx.done;
@@ -289,7 +288,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let result = await tx.objectStore(storeName).index(indexName).count(key ?? undefined);
+            let result = await tx.store.index(indexName).count(key ?? undefined);
 
             await tx.done;
 
@@ -313,7 +312,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            const results = await tx.objectStore(storeName).index(indexName).get(key);
+            const results = await tx.store.index(indexName).get(key);
 
             await tx.done;
 
@@ -329,7 +328,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            const results = await tx.objectStore(storeName).index(indexName).getAll(key ?? undefined, count ?? undefined);
+            const results = await tx.store.index(indexName).getAll(key ?? undefined, count ?? undefined);
 
             await tx.done;
 
@@ -354,7 +353,7 @@ export class IndexedDbManager {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
-            const dx = tx.objectStore(storeName).index(indexName);
+            const dx = tx.store.index(indexName);
 
             let results: any[] = [];
 
@@ -377,7 +376,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            const results = await tx.objectStore(storeName).index(indexName).getKey(key);
+            const results = await tx.store.index(indexName).getKey(key);
 
             await tx.done;
 
@@ -393,7 +392,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            const results = await tx.objectStore(storeName).index(indexName).getAllKeys(key ?? undefined, count ?? undefined);
+            const results = await tx.store.index(indexName).getAllKeys(key ?? undefined, count ?? undefined);
 
             await tx.done;
 
@@ -418,7 +417,7 @@ export class IndexedDbManager {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
-            const dx = tx.objectStore(storeName).index(indexName);
+            const dx = tx.store.index(indexName);
 
             let results: any[] = [];
 
@@ -439,8 +438,6 @@ export class IndexedDbManager {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
-            const tx = this.dbInstance.transaction(storeName, 'readonly');
-
             try {
                 var func = new Function('obj', filter);
             } catch (error) {
@@ -452,7 +449,10 @@ export class IndexedDbManager {
 
             let results: any[] = [];
 
-            for await (const cursor of tx.objectStore(storeName)) {
+            const tx = this.dbInstance.transaction(storeName, 'readonly');
+
+            let cursor = await tx.store.index(indexName).openCursor();
+            while (cursor) {
                 if (!cursor) {
                     return;
                 }
@@ -472,7 +472,7 @@ export class IndexedDbManager {
                 if (count > 0 && results.length >= count) {
                     return;
                 }
-                cursor.continue();
+                cursor = await cursor.continue();
             }
 
             await tx.done;
@@ -492,11 +492,10 @@ export class IndexedDbManager {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
-            const objectStore = tx.objectStore(storeName);
 
-            data = this.checkForKeyPath(objectStore, data);
+            data = this.checkForKeyPath(tx.store, data);
 
-            const result = await objectStore.add(data, key ?? undefined);
+            const result = await tx.store.add(data, key ?? undefined);
 
             await tx.done;
 
@@ -512,7 +511,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
-            const result = await tx.objectStore(storeName).put(data, key ?? undefined);
+            const result = await tx.store.put(data, key ?? undefined);
 
             await tx.done;
 
@@ -528,7 +527,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
-            await tx.objectStore(storeName).delete(id);
+            await tx.store.delete(id);
 
             await tx.done;
 
@@ -543,11 +542,10 @@ export class IndexedDbManager {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
-            const objectStore = tx.objectStore(storeName);
 
             data.forEach(async element => {
-                let item = this.checkForKeyPath(objectStore, element);
-                await objectStore.add(item);
+                let item = this.checkForKeyPath(tx.store, element);
+                await tx.store.add(item);
             });
 
             await tx.done;
@@ -565,7 +563,7 @@ export class IndexedDbManager {
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
             data.forEach(async element => {
-                await tx.objectStore(storeName).put(element);
+                await tx.store.put(element);
             });
 
             await tx.done;
@@ -583,7 +581,7 @@ export class IndexedDbManager {
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
             ids.forEach(async element => {
-                await tx.objectStore(storeName).delete(element);
+                await tx.store.delete(element);
             });
 
             await tx.done;
@@ -600,7 +598,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
-            await tx.objectStore(storeName).clear();
+            await tx.store.clear();
 
             await tx.done;
 
