@@ -9,17 +9,17 @@ This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) lib
 It tries to implement IndexedDB API with same classes and function names when possible, so you can use public [documentation](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 
 ## API functions
-[IDBFactory.open()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/open)
+[`IDBFactory.open()`](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/open)
 ```CSharp
 public async Task Open();
 ```
 
-[IDBFactory.deleteDatabase()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/deleteDatabase)
+[`IDBFactory.deleteDatabase()`](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/deleteDatabase)
 ```CSharp
 public async Task DeleteDatabase();
 ```
 
-[IDBDatabase.createObjectStore()](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/createObjectStore)
+[`IDBDatabase.createObjectStore()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/createObjectStore)
 ```CSharp
 public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
