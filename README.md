@@ -85,7 +85,7 @@ public async Task CreateObjectStore(IDBObjectStore objectStore);
 
 ## Demo
 
-Check simple Blazor WASM PWA demo in Demos/BlazorIndexedDbJsClientDemo/
+Check simple Blazor WASM PWA demo in Demos [BlazorIndexedDbJsClientDemo](https://github.com/kattunga/BlazorIndexedDbJs/tree/master/Demos/BlazorIndexedDbJsClientDemo)
 
 ## Using the library
 
