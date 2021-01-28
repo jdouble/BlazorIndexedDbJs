@@ -1,12 +1,12 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
-import { openDb, deleteDb, DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
-import { IDatabase, IIndexSearch, IIndex, IObjectStore, IInformation } from './InteropInterfaces';
+import { openDB, deleteDB, IDBPDatabase, IDBPObjectStore } from 'idb';
+import { IDatabase, IObjectStore, IInformation } from './InteropInterfaces';
 
 const E_DB_CLOSED: string = "Database is closed";
 
 export class IndexedDbManager {
 
-    private dbInstance?: DB = undefined;
+    private dbInstance?: IDBPDatabase = undefined;
 
     constructor() { }
 
@@ -19,13 +19,15 @@ export class IndexedDbManager {
                     this.dbInstance.close();
                     this.dbInstance = undefined;
                 }
-                this.dbInstance = await openDb(database.name, database.version, upgradeDB => {
-                    try {
-                        this.upgradeDatabase(upgradeDB, database);
-                    } catch (error) {
-                        upgradeError = error.toString();
-                        throw(error);
-                    }
+                this.dbInstance = await openDB(database.name, database.version, {
+                    upgrade(db, oldVersion, newVersion, transaction) {
+                        try {
+                            IndexedDbManager.upgradeDatabase(db, oldVersion, newVersion, database);
+                        } catch (error) {
+                            upgradeError = error.toString();
+                            throw(error);
+                        }
+                    },
                 });
             }
 
@@ -41,7 +43,7 @@ export class IndexedDbManager {
 
             this.dbInstance.close();
 
-            await deleteDb(dbName);
+            await deleteDB(dbName);
 
             this.dbInstance = undefined;
 
@@ -55,7 +57,7 @@ export class IndexedDbManager {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
-            const currentDb = <DB>this.dbInstance;
+            const currentDb = this.dbInstance;
 
             let getStoreNames = (list: DOMStringList): string[] => {
                 let names: string[] = [];
@@ -84,7 +86,7 @@ export class IndexedDbManager {
 
             let result = await tx.objectStore(storeName).count(key ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return result;
         } catch (error) {
@@ -108,7 +110,7 @@ export class IndexedDbManager {
 
             let result = await tx.objectStore(storeName).get(key);
 
-            await tx.complete;
+            await tx.done;
 
             return result;
         } catch (error) {
@@ -124,7 +126,7 @@ export class IndexedDbManager {
 
             let results = await tx.objectStore(storeName).getAll(key ?? undefined, count ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -156,7 +158,7 @@ export class IndexedDbManager {
                 results = results.concat(await sx.getAll(element));
             }
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -172,7 +174,7 @@ export class IndexedDbManager {
 
             let result = await tx.objectStore(storeName).getKey(key);
 
-            await tx.complete;
+            await tx.done;
 
             return result;
         } catch (error) {
@@ -188,7 +190,7 @@ export class IndexedDbManager {
 
             let results = await tx.objectStore(storeName).getAllKeys(key ?? undefined, count ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -220,7 +222,7 @@ export class IndexedDbManager {
                 results = results.concat(await sx.getAllKeys(element));
             }
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -245,31 +247,30 @@ export class IndexedDbManager {
 
             let results: any[] = [];
 
-            tx.objectStore(storeName)
-                .iterateCursor(cursor => {
-                    if (!cursor) {
-                        return;
-                    }
-                    try {
-                        var out = func(cursor.value);
-                        if (out) {
-                            row ++;
-                            if (row > skip) {
-                                results.push(out);
-                            }
+            for await (const cursor of tx.objectStore(storeName)) {
+                if (!cursor) {
+                    return;
+                }
+                try {
+                    var out = func(cursor.value);
+                    if (out) {
+                        row ++;
+                        if (row > skip) {
+                            results.push(out);
                         }
                     }
-                    catch (error) {
-                        errorMessage = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${error.toString()}`;
-                        return;
-                    }
-                    if (count > 0 && results.length >= count) {
-                        return;
-                    }
-                    cursor.continue();
-                });
+                }
+                catch (error) {
+                    errorMessage = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${error.toString()}`;
+                    return;
+                }
+                if (count > 0 && results.length >= count) {
+                    return;
+                }
+                cursor.continue();
+            }
 
-            await tx.complete;
+            await tx.done;
 
             if (errorMessage) {
                 throw errorMessage;
@@ -290,7 +291,7 @@ export class IndexedDbManager {
 
             let result = await tx.objectStore(storeName).index(indexName).count(key ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return result;
         } catch (error) {
@@ -314,7 +315,7 @@ export class IndexedDbManager {
 
             const results = await tx.objectStore(storeName).index(indexName).get(key);
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -330,7 +331,7 @@ export class IndexedDbManager {
 
             const results = await tx.objectStore(storeName).index(indexName).getAll(key ?? undefined, count ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -362,7 +363,7 @@ export class IndexedDbManager {
                 results = results.concat(await dx.getAll(element));
             }
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -378,7 +379,7 @@ export class IndexedDbManager {
 
             const results = await tx.objectStore(storeName).index(indexName).getKey(key);
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -394,7 +395,7 @@ export class IndexedDbManager {
 
             const results = await tx.objectStore(storeName).index(indexName).getAllKeys(key ?? undefined, count ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -426,7 +427,7 @@ export class IndexedDbManager {
                 results = results.concat(await dx.getAllKeys(element));
             }
 
-            await tx.complete;
+            await tx.done;
 
             return results;
         } catch (error) {
@@ -451,32 +452,30 @@ export class IndexedDbManager {
 
             let results: any[] = [];
 
-            tx.objectStore(storeName)
-                .index(indexName)
-                .iterateCursor(cursor => {
-                    if (!cursor) {
-                        return;
-                    }
-                    try {
-                        var out = func(cursor.value);
-                        if (out) {
-                            row ++;
-                            if (row > skip) {
-                                results.push(out);
-                            }
+            for await (const cursor of tx.objectStore(storeName)) {
+                if (!cursor) {
+                    return;
+                }
+                try {
+                    var out = func(cursor.value);
+                    if (out) {
+                        row ++;
+                        if (row > skip) {
+                            results.push(out);
                         }
                     }
-                    catch (error) {
-                        errorMessage = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${error.toString()}`;
-                        return;
-                    }
-                    if (count > 0 && results.length >= count) {
-                        return;
-                    }
-                    cursor.continue();
-                });
+                }
+                catch (error) {
+                    errorMessage = `obj: ${JSON.stringify(cursor.value)}\nfilter: ${filter}\nerror: ${error.toString()}`;
+                    return;
+                }
+                if (count > 0 && results.length >= count) {
+                    return;
+                }
+                cursor.continue();
+            }
 
-            await tx.complete;
+            await tx.done;
 
             if (errorMessage) {
                 throw errorMessage;
@@ -499,7 +498,7 @@ export class IndexedDbManager {
 
             const result = await objectStore.add(data, key ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return `Added new record with id ${result}`;
         } catch (error) {
@@ -515,7 +514,7 @@ export class IndexedDbManager {
 
             const result = await tx.objectStore(storeName).put(data, key ?? undefined);
 
-            await tx.complete;
+            await tx.done;
 
             return `updated record with id ${result}`;
         } catch (error) {
@@ -531,7 +530,7 @@ export class IndexedDbManager {
 
             await tx.objectStore(storeName).delete(id);
 
-            await tx.complete;
+            await tx.done;
 
             return `Record with id: ${id} deleted`;
         } catch (error) {
@@ -551,7 +550,7 @@ export class IndexedDbManager {
                 await objectStore.add(item);
             });
 
-            await tx.complete;
+            await tx.done;
 
             return `Added ${data.length} records`;
         } catch (error) {
@@ -569,7 +568,7 @@ export class IndexedDbManager {
                 await tx.objectStore(storeName).put(element);
             });
 
-            await tx.complete;
+            await tx.done;
 
             return `updated ${data.length} records`;
         } catch (error) {
@@ -587,7 +586,7 @@ export class IndexedDbManager {
                 await tx.objectStore(storeName).delete(element);
             });
 
-            await tx.complete;
+            await tx.done;
 
             return `Deleted ${ids.length} records`;
         } catch (error) {
@@ -603,7 +602,7 @@ export class IndexedDbManager {
 
             await tx.objectStore(storeName).clear();
 
-            await tx.complete;
+            await tx.done;
 
             return `Store ${storeName} cleared`;
         } catch (error) {
@@ -611,7 +610,7 @@ export class IndexedDbManager {
         }
     }
 
-    private checkForKeyPath(objectStore: ObjectStore<any, any>, data: any) {
+    private checkForKeyPath(objectStore: IDBPObjectStore<any, any>, data: any) {
         if (!objectStore.autoIncrement || !objectStore.keyPath) {
             return data;
         }
@@ -628,8 +627,8 @@ export class IndexedDbManager {
         return data;
     }
 
-    private upgradeDatabase(upgradeDB: UpgradeDB, dbDatabase: IDatabase) {
-        if (upgradeDB.oldVersion < dbDatabase.version) {
+    private static upgradeDatabase(upgradeDB: IDBPDatabase, oldVersion: number, newVersion: number | null, dbDatabase: IDatabase) {
+        if (newVersion && newVersion > oldVersion) {
             if (dbDatabase.objectStores) {
                 for (var store of dbDatabase.objectStores) {
                     if (!upgradeDB.objectStoreNames.contains(store.name)) {
@@ -640,7 +639,7 @@ export class IndexedDbManager {
         }
     }
 
-    private getKeyPath(keyPath?: string): string | string[] | undefined {
+    private static getKeyPath(keyPath?: string): string | string[] | undefined {
         if (keyPath) {
             var multiKeyPath = keyPath.split(',');
             return multiKeyPath.length > 1 ? multiKeyPath : keyPath;
@@ -650,7 +649,7 @@ export class IndexedDbManager {
         }
     }
 
-    private addNewStore(upgradeDB: UpgradeDB, store: IObjectStore) {
+    private static addNewStore(upgradeDB: IDBPDatabase, store: IObjectStore) {
         try {
             let primaryKey = store.primaryKey;
 
