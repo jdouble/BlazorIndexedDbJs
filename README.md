@@ -131,7 +131,12 @@ must return true/false to indicate if record should be included in result set.
 
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null);
+public async Task<List<TResult>> Query<TKey, TResult>(string storeName, string filter, TKey key, int? count = null, int? skip = null);
+public async Task<List<TResult>> Query<TKey, TResult>(string storeName, string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null);
+
 public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
+public async Task<List<TResult>> QueryFromIndex<TKey, TResult>(string storeName, string indexName, string filter, TKey key, int? count = null, int? skip = null);
+public async Task<List<TResult>> QueryFromIndex<TKey, TResult>(string storeName, string indexName, string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
 ```
 
 for example, return a list of objects that contains the world `"per"` in property `firstName` ordered using index `lastName`.

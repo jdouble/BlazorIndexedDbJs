@@ -352,7 +352,45 @@ namespace BlazorIndexedDbJs
         public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null)
         {
             await EnsureIsOpen();
-            var results = await CallJavascript<List<TResult>>(DbFunctions.Query, storeName, filter, count, skip);
+            var results = await CallJavascript<List<TResult>>(DbFunctions.Query, storeName, null, filter, count, skip);
+            RaiseNotification(DbFunctions.Query, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> Query<TKey, TResult>(string storeName, string filter, TKey key, int? count = null, int? skip = null)
+        {
+            await EnsureIsOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.Query, storeName, key, filter, count, skip);
+            RaiseNotification(DbFunctions.Query, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> Query<TKey, TResult>(string storeName, string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
+        {
+            await EnsureIsOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.Query, storeName, key, filter, count, skip);
             RaiseNotification(DbFunctions.Query, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
         }
@@ -583,6 +621,7 @@ namespace BlazorIndexedDbJs
         /// Gets all of the records using a filter expression
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="indexName"></param>
         /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
         /// <param name="count"></param>
         /// <param name="skip"></param>
@@ -591,7 +630,47 @@ namespace BlazorIndexedDbJs
         public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null)
         {
             await EnsureIsOpen();
-            var results = await CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, storeName, indexName, filter, count, skip);
+            var results = await CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, storeName, indexName, null, filter, count, skip);
+            RaiseNotification(DbFunctions.QueryFromIndex, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="indexName"></param>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> QueryFromIndex<TKey, TResult>(string storeName, string indexName, string filter, TKey key, int? count = null, int? skip = null)
+        {
+            await EnsureIsOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, storeName, indexName, key, filter, count, skip);
+            RaiseNotification(DbFunctions.QueryFromIndex, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="indexName"></param>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> QueryFromIndex<TKey, TResult>(string storeName, string indexName, string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
+        {
+            await EnsureIsOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, storeName, indexName, key, filter, count, skip);
             RaiseNotification(DbFunctions.QueryFromIndex, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
         }
