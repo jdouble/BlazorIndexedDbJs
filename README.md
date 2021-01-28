@@ -311,7 +311,7 @@ The filter expression is the body of a function that receives de parameter `obj`
 must return true/false to indicate if record should be included in result set.
 
 ```CSharp
-var people = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "return obj.firstName.toLowerCase().includes('per');");
+var people = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "if (obj.firstName.toLowerCase().includes('per')) return obj;");
 ```
 
 ### getting one record using an index
