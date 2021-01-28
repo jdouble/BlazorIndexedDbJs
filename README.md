@@ -9,38 +9,19 @@ This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) lib
 It tries to implement IndexedDB API with same classes and function names when possible, so you can use public [documentation](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 
 ## API functions
+[IDBFactory.open()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/open)
 ```CSharp
-public async Task OpenDb();
-public async Task DeleteDb();
-
-[IDBObjectStore.add()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add)
-public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key);
-
-public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null);
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey key, int? count = null);
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key);
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null);
-
-public async Task<int> Count(string storeName);
-public async Task<int> Count<TKey>(string storeName, TKey key);
-public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key);
-
-public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue);
+public async Task Open();
 ```
 
-[`IDBIndex.getAll()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAll)
+[IDBFactory.deleteDatabase()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/deleteDatabase)
 ```CSharp
-public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null);
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null);
+public async Task DeleteDatabase();
 ```
 
-[`IDBIndex.count()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/count)
+[IDBDatabase.createObjectStore()](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/createObjectStore)
 ```CSharp
-public async Task<int> CountFromIndex(string storeName, string indexName);
-public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key);
-public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key);
+public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
 [`IDBObjectStore.add()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add)
@@ -65,22 +46,78 @@ public async Task Delete<TKey>(string storeName, TKey key);
 public async Task ClearStore(string storeName);
 ```
 
-Batch functions
+[`IDBObjectStore.count()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/count)
+```CSharp
+public async Task<int> Count(string storeName);
+public async Task<int> Count<TKey>(string storeName, TKey key);
+public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key);
+```
+
+[`IDBObjectStore.get()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/get)
+```CSharp
+public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key);
+```
+
+[`IDBObjectStore.getAll()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/getAll)
+```CSharp
+public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey key, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key);
+```
+
+[`IDBObjectStore.getAllKeys()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/getAllKeys)
+```CSharp
+public async Task<List<TResult>> GetAllKeys<TResult>(string storeName, int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, TKey key, int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, TKey[] key);
+```
+
+[`IDBIndex.count()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/count)
+```CSharp
+public async Task<int> CountFromIndex(string storeName, string indexName);
+public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key);
+public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key);
+```
+
+[`IDBIndex.get()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/get)
+```CSharp
+public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue);
+```
+
+[`IDBIndex.getAll()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAll)
+```CSharp
+public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null);
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
+```
+
+[`IDBIndex.getKey()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getKey)
+```CSharp
+public async Task<TResult> GetKeyFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue);
+```
+
+[`IDBIndex.getAllKeys()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAllKeys)
+```CSharp
+public async Task<List<TResult>> GetAllKeysFromIndex<TResult>(string storeName, string indexName, int? count = null);
+public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
+public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
+```
+
+IDBObjectStore Batch functions
 ```CSharp
 public async Task BatchAdd<TData>(string storeName, TData[] data);
 public async Task BatchPut<TData>(string storeName, TData[] data);
 public async Task BatchDelete<TKey>(string storeName, TKey[] key);
 ```
 
-query functions
+Advanced query functions
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
-```
-
-other functions
-```CSharp
-public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
 ## Demo
@@ -89,7 +126,7 @@ Check simple Blazor WASM PWA demo in Demos [BlazorIndexedDbJsClientDemo](https:/
 
 ## Using the library
 
-### requires 
+### requires
 NET 5.0 or newer
 
 ### 1. Install NuGet package
@@ -122,7 +159,7 @@ For blazor server, in `Pages/_Host.cshtml`
 ...
 <body>
     ...
-    <script src="_framework/blazor.server.js"></script>    
+    <script src="_framework/blazor.server.js"></script>
 
     <script src="_content/BlazorIndexedDbJs/BlazorIndexedDb.js"></script>
 </body>
@@ -173,7 +210,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
                     {
                         Name="fullname",
                         KeyPath = "firstName","lastName"
-                    }                    
+                    }
                 }
             });
         }
@@ -260,7 +297,7 @@ To use IndexedDB in a component or page first inject the IDBManager instance.
 ```CSharp
 var people = await theFactoryDb.GetAll<Person>("Employees");
 ```
- 
+
 ### Get one record by Id
 ```CSharp
 var person = await theFactoryDb.Get<long, Person>("Employees", id);
