@@ -84,6 +84,22 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             }
         }
 
+        private async Task ConsoleLogTest()
+        {
+            try
+            {
+                var list1 = await theFactoryDb.GetAllKeysFromIndex<int>(TheFactoryDb.Employees, "firstName");
+                await theFactoryDb.ConsoleLog("GetAllKeysFromIndex", list1);
+
+                var list2 = await theFactoryDb.GetAllKeysFromIndex<string, int>(TheFactoryDb.Employees, "firstName", "person 10");
+                await theFactoryDb.ConsoleLog("GetAllKeysFromIndex", list2);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
+        }
+
         private async Task GetByKey(int key, int? count = null)
         {
             try
@@ -128,7 +144,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                var filter = $"return obj.firstName.toLowerCase().includes('{FirstNameFilter.ToLower()}');";
+                var filter = $"if (obj.firstName.toLowerCase().includes('{FirstNameFilter.ToLower()}')) return obj;";
                 People = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, filter);
             }
             catch (IDBException e)

@@ -16,19 +16,25 @@ namespace BlazorIndexedDbJs
             public const string CreateDb = "createDb";
             public const string DeleteDb = "deleteDb";
             public const string OpenDb = "openDb";
-            public const string Get = "get";
-            public const string GetAll = "getAll";
-            public const string GetAllByArrayKey = "getAllByArrayKey";
-            public const string GetAllByKeyRange = "getAllByKeyRange";
             public const string Count = "count";
             public const string CountByKeyRange = "countByKeyRange";
+            public const string Get = "get";
+            public const string GetAll = "getAll";
+            public const string GetAllByKeyRange = "getAllByKeyRange";
+            public const string GetAllByArrayKey = "getAllByArrayKey";
+            public const string GetKey = "getKey";
+            public const string GetAllKeys = "getAllKeys";
+            public const string GetAllKeysByKeyRange = "getAllKeysByKeyRange";
             public const string Query = "query";
-            public const string GetFromIndex = "getFromIndex";
-            public const string GetAllFromIndex = "getAllFromIndex";
-            public const string GetAllFromIndexByArrayKey = "GetAllFromIndexByArrayKey";
-            public const string GetAllFromIndexByKeyRange = "GetAllFromIndexByKeyRange";
             public const string CountFromIndex = "countFromIndex";
             public const string CountFromIndexByKeyRange = "countFromIndexByKeyRange";
+            public const string GetFromIndex = "getFromIndex";
+            public const string GetAllFromIndex = "getAllFromIndex";
+            public const string GetAllFromIndexByKeyRange = "getAllFromIndexByKeyRange";
+            public const string GetAllFromIndexByArrayKey = "getAllFromIndexByArrayKey";
+            public const string GetKeyFromIndex = "getKeyFromIndex";
+            public const string GetAllKeysFromIndex = "getAllKeysFromIndex";
+            public const string GetAllKeysFromIndexByKeyRange = "getAllKeysFromIndexByKeyRange";
             public const string QueryFromIndex = "queryFromIndex";
             public const string Add = "add";
             public const string Put = "put";
@@ -134,6 +140,50 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
+        /// Count records in ObjectStore
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <returns></returns>
+        public async Task<int> Count(string storeName)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<int>(DbFunctions.Count, storeName);
+            RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
+            return result;
+        }
+
+        /// <summary>
+        /// Count records in ObjectStore
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<int> Count<TKey>(string storeName, TKey key)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<int>(DbFunctions.Count, storeName, key);
+            RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
+            return result;
+        }
+
+        /// <summary>
+        /// Count records in ObjectStore
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<int>(
+                DbFunctions.CountByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
+            RaiseNotification(DbFunctions.CountByKeyRange, storeName, $"Retrieved {result} records from {storeName}");
+            return result;
+        }
+
+        /// <summary>
         /// Retrieve a record by Key
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
@@ -180,22 +230,6 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
-        /// Gets all of the records by ArrayKey in a given store.
-        /// </summary>
-        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
-        /// <param name="key"></param>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key)
-        {
-            await EnsureDbOpen();
-            var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllByArrayKey, storeName, key);
-            RaiseNotification(DbFunctions.GetAllByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName}");
-            return results;
-        }
-
-        /// <summary>
         /// Gets all of the records by KeyRange in a given store.
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
@@ -212,47 +246,81 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
-        /// Count records in ObjectStore
-        /// </summary>
-        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
-        /// <returns></returns>
-        public async Task<int> Count(string storeName)
-        {
-            await EnsureDbOpen();
-            var result = await CallJavascript<int>(DbFunctions.Count, storeName);
-            RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
-            return result;
-        }
-
-        /// <summary>
-        /// Count records in ObjectStore
+        /// Gets all of the records by ArrayKey in a given store.
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
         /// <param name="key"></param>
         /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<int> Count<TKey>(string storeName, TKey key)
+        public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<int>(DbFunctions.Count, storeName, key);
-            RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
+            var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllByArrayKey, storeName, key);
+            RaiseNotification(DbFunctions.GetAllByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Retrieve a record key by Key
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="key">the key of the record</param>
+        /// <returns></returns>
+        public async Task<TResult?> GetKey<TKey, TResult>(string storeName, TKey key)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<TResult?>(DbFunctions.GetKey, storeName, key);
+            RaiseNotification(DbFunctions.GetKey, storeName, $"Retrieved 1 key from {storeName}");
             return result;
         }
 
         /// <summary>
-        /// Count records in ObjectStore
+        /// Gets all of the records keys in a given store.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeys<TResult>(string storeName, int? count = null)
+        {
+            await EnsureDbOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllKeys, storeName, null, count);
+            RaiseNotification(DbFunctions.GetAllKeys, storeName, $"Retrieved {results.Count} records keys from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records kesy by Key in a given store.
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
         /// <param name="key"></param>
         /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key)
+        public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, TKey key, int? count = null)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<int>(
-                DbFunctions.CountByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
-            RaiseNotification(DbFunctions.CountByKeyRange, storeName, $"Retrieved {result} records from {storeName}");
-            return result;
+            var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllKeys, storeName, key, count);
+            RaiseNotification(DbFunctions.GetAllKeys, storeName, $"Retrieved {results.Count} records keys from {storeName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records by KeyRange in a given store.
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null)
+        {
+            await EnsureDbOpen();
+            var results = await CallJavascript<List<TResult>>(DbFunctions.GetAllKeysByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
+            RaiseNotification(DbFunctions.GetAllKeysByKeyRange, storeName, $"Retrieved {results.Count} records from {storeName}");
+            return results;
         }
 
         /// <summary>
@@ -270,6 +338,50 @@ namespace BlazorIndexedDbJs
             var results = await CallJavascript<List<TResult>>(DbFunctions.Query, storeName, filter, count, skip);
             RaiseNotification(DbFunctions.Query, storeName, $"Retrieved {results.Count} records from {storeName}");
             return results;
+        }
+
+        /// <summary>
+        /// Count records in ObjectStore
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <returns></returns>
+        public async Task<int> CountFromIndex(string storeName, string indexName)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<int>(DbFunctions.CountFromIndex, storeName);
+            RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
+            return result;
+        }
+
+        /// <summary>
+        /// Count records in ObjectStore
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<int>(DbFunctions.CountFromIndex, storeName, key);
+            RaiseNotification(DbFunctions.CountFromIndex, storeName, $"Retrieved {result} records from {storeName}");
+            return result;
+        }
+
+        /// <summary>
+        /// Count records in ObjectStore
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<int>(
+                DbFunctions.CountFromIndexByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
+            RaiseNotification(DbFunctions.CountFromIndexByKeyRange, storeName, $"Retrieved {result} records from {storeName}");
+            return result;
         }
 
         /// <summary>
@@ -329,24 +441,6 @@ namespace BlazorIndexedDbJs
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
         /// <param name="indexName"></param>
-        /// <param name="key"></param>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key)
-        {
-            await EnsureDbOpen();
-            var results = await CallJavascript<List<TResult>>(
-                DbFunctions.GetAllFromIndexByArrayKey, storeName, indexName, key);
-            RaiseNotification(DbFunctions.GetAllFromIndexByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
-            return results;
-        }
-
-        /// <summary>
-        /// Gets all of the records that match a given query in the specified index.
-        /// </summary>
-        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
-        /// <param name="indexName"></param>
         /// <param name="queryValue"></param>
         /// <param name="count"></param>
         /// <typeparam name="TKey"></typeparam>
@@ -362,47 +456,92 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
-        /// Count records in ObjectStore
+        /// Gets all of the records that match a given query in the specified index.
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="indexName"></param>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<int> CountFromIndex(string storeName, string indexName)
+        public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<int>(DbFunctions.CountFromIndex, storeName);
-            RaiseNotification(DbFunctions.Count, storeName, $"Retrieved {result} records from {storeName}");
+            var results = await CallJavascript<List<TResult>>(
+                DbFunctions.GetAllFromIndexByArrayKey, storeName, indexName, key);
+            RaiseNotification(DbFunctions.GetAllFromIndexByArrayKey, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Returns the first record keys that matches a query against a given index
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="searchQuery">an instance of StoreIndexQuery</param>
+        /// <returns></returns>
+        public async Task<TResult> GetKeyFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue)
+        {
+            await EnsureDbOpen();
+            var result = await CallJavascript<TResult>(
+                DbFunctions.GetKeyFromIndex, storeName, indexName, queryValue);
+            RaiseNotification(DbFunctions.GetKeyFromIndex, storeName, $"Retrieved 1 key from {storeName} index {indexName}");
             return result;
         }
 
         /// <summary>
-        /// Count records in ObjectStore
+        /// Gets all of the records keys that match a given query in the specified index.
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
-        /// <param name="key"></param>
-        /// <typeparam name="TKey"></typeparam>
+        /// <param name="indexName"></param>
+        /// <param name="count"></param>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key)
+        public async Task<List<TResult>> GetAllKeysFromIndex<TResult>(string storeName, string indexName, int? count = null)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<int>(DbFunctions.CountFromIndex, storeName, key);
-            RaiseNotification(DbFunctions.CountFromIndex, storeName, $"Retrieved {result} records from {storeName}");
-            return result;
+            var results = await CallJavascript<List<TResult>>(
+                DbFunctions.GetAllKeysFromIndex, storeName, indexName, null, count);
+            RaiseNotification(DbFunctions.GetAllKeysFromIndex, storeName, $"Retrieved {results.Count} keys from {storeName} index {indexName}");
+            return results;
         }
 
         /// <summary>
-        /// Count records in ObjectStore
+        /// Gets all of the records keys that match a given query in the specified index.
         /// </summary>
         /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="indexName"></param>
         /// <param name="key"></param>
+        /// <param name="count"></param>
         /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key)
+        public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null)
         {
             await EnsureDbOpen();
-            var result = await CallJavascript<int>(
-                DbFunctions.CountFromIndexByKeyRange, storeName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
-            RaiseNotification(DbFunctions.CountFromIndexByKeyRange, storeName, $"Retrieved {result} records from {storeName}");
-            return result;
+            var results = await CallJavascript<List<TResult>>(
+                DbFunctions.GetAllKeysFromIndex, storeName, indexName, key, count);
+            RaiseNotification(DbFunctions.GetAllKeysFromIndex, storeName, $"Retrieved {results.Count} keys from {storeName} index {indexName}");
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="storeName">The name of the ObjectStore to retrieve the record from</param>
+        /// <param name="indexName"></param>
+        /// <param name="queryValue"></param>
+        /// <param name="count"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null)
+        {
+            await EnsureDbOpen();
+            var results = await CallJavascript<List<TResult>>(
+                DbFunctions.GetAllKeysFromIndexByKeyRange, storeName, indexName, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
+            RaiseNotification(DbFunctions.GetAllKeysFromIndexByKeyRange, storeName, $"Retrieved {results.Count} records from {storeName} index {indexName}");
+            return results;
         }
 
         /// <summary>
@@ -540,6 +679,18 @@ namespace BlazorIndexedDbJs
             await EnsureDbOpen();
                 var result =  await CallJavascript<string>(DbFunctions.ClearStore, storeName);
                 RaiseNotification(DbFunctions.ClearStore, storeName, result);
+        }
+
+        public async Task ConsoleLog(params object[] args)
+        {
+            try
+            {
+                await _jsRuntime.InvokeVoidAsync("console.log", args);
+            }
+            catch (JSException e)
+            {
+                throw new IDBException(e.Message);
+            }
         }
 
         private async Task<TResult> CallJavascript<TResult>(string functionName, params object?[] args)

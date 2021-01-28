@@ -16,6 +16,7 @@
         <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetByKey(7))">Get id=7</button>
         <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetByKeyArray(new int[] {7, 9, 11}))">Get id=7, 9, 11</button>
         <button class="btn btn-outline-primary mt-2" @onclick="@( _ => GetByKeyRange(7, 12))">Get id between 7 and 12</button>
+        <button class="btn btn-outline-primary mt-2" @onclick="ConsoleLogTest">Multiple test to console (press F12)</button>
     </div>
 
     <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:300px;">
