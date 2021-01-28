@@ -4,17 +4,16 @@
 
 # BlazorIndexedDbJs
 
-This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) library for accessing IndexedDB, it uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side.
+This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) library for accessing IndexedDB, it uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
 
-It allows query multiple IndexedDb databases simultaneously.
+It tries to implement IndexedDB API with same classes and function names when possible, so you can use public [documentation](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 
-[IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
-
-This are the IndexedDB implemented api functions:
+## API functions
 ```CSharp
 public async Task OpenDb();
 public async Task DeleteDb();
 
+[IDBObjectStore.add()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add)
 public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key);
 
 public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null);
@@ -32,19 +31,34 @@ public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, stri
 public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
 public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
 public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null);
+```
 
+[`IDBIndex.count()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/count)
+```CSharp
 public async Task<int> CountFromIndex(string storeName, string indexName);
 public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key);
 public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key);
+```
 
+[`IDBObjectStore.add()`](https://developer.mozilla.org/docs/Web/API/IDBObjectStore/add)
+```CSharp
 public async Task Add<TData>(string storeName, TData data);
 public async Task Add<TData, TKey>(string storeName, TData data, TKey key);
+```
 
+[`IDBObjectStore.put()`](https://developer.mozilla.org/docs/Web/API/IDBObjectStore/put)
+```CSharp
 public async Task Put<TData>(string storeName, TData data);
 public async Task Put<TData, TKey>(string storeName, TData data, TKey key);
+```
 
+[`IDBObjectStore.delete()`](https://developer.mozilla.org/docs/Web/API/IDBObjectStore/delete)
+```CSharp
 public async Task Delete<TKey>(string storeName, TKey key);
+```
 
+Extra functions functions
+```CSharp
 public async Task BatchAdd<TData>(string storeName, TData[] data);
 public async Task BatchPut<TData>(string storeName, TData[] data);
 public async Task BatchDelete<TKey>(string storeName, TKey[] key);
