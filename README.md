@@ -118,9 +118,24 @@ public async Task BatchDelete<TKey>(string storeName, TKey[] key);
 ```
 
 #### Advanced query functions
+
+The filter expression is the body of a function that receives de parameter `obj` than handle each record of ObjectStore.
+The function return value will be included in the ```List<TResult>``` result and can be one of the following options:
+* the same object
+* a new object
+* an array of new objects (unwind)
+* undefined (record is not included in result)
+must return true/false to indicate if record should be included in result set.
+
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
+```
+
+for example, return a list of objects that contains the world `"per"` in property `firstName` ordered using index `lastName`.
+```CSharp
+var people = await theFactoryDb.QueryFromIndex<Person>("people", "lastName"
+    "if (obj.firstName.toLowerCase().includes('per')) return obj;");
 ```
 
 ## Demo
@@ -304,14 +319,6 @@ var people = await theFactoryDb.GetAll<Person>("Employees");
 ### Get one record by Id
 ```CSharp
 var person = await theFactoryDb.Get<long, Person>("Employees", id);
-```
-
-### Query a IDBObjectStore using a filter expression
-The filter expression is the body of a function that receives de parameter `obj` than hadle each record of ObjectStore and
-must return true/false to indicate if record should be included in result set.
-
-```CSharp
-var people = await theFactoryDb.Query<Person>(TheFactoryDb.Employees, "if (obj.firstName.toLowerCase().includes('per')) return obj;");
 ```
 
 ### getting one record using an index
