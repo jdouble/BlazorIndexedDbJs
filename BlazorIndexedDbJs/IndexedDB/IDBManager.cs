@@ -83,6 +83,28 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
+        /// This function provides the means to add a store to an existing database,
+        /// </summary>
+        /// <param name="objectStore"></param>
+        /// <returns></returns>
+        public async Task CreateObjectStore(IDBObjectStore objectStore)
+        {
+            await EnsureIsOpen();
+            if (objectStore == null)
+            {
+                return;
+            }
+
+            if (_objectStores.Any(s => s.Name == objectStore.Name))
+            {
+                return;
+            }
+            _objectStores.Add(objectStore);
+            Version += 1;
+            await Open();
+        }
+
+        /// <summary>
         /// get ObjectSore by name
         /// </summary>
         /// <param name="name"></param>
@@ -95,30 +117,6 @@ namespace BlazorIndexedDbJs
                 throw new IDBException($"Store {storeName} does not exists");
             }
             return store;
-        }
-
-        /// <summary>
-        /// This function provides the means to add a store to an existing database,
-        /// </summary>
-        /// <param name="objectStore"></param>
-        /// <returns></returns>
-        public async Task CreateObjectStore(IDBObjectStore objectStore)
-        {
-            if (objectStore == null)
-            {
-                return;
-            }
-
-            if (_objectStores.Any(s => s.Name == objectStore.Name))
-            {
-                return;
-            }
-            _objectStores.Add(objectStore);
-            Version += 1;
-
-            var dbdef = IDBSchema.GetDatabaseDef(Name, Version, _objectStores);
-            var result = await CallJavascript<string>(DbFunctions.Open, dbdef, new { Instance = DotNetObjectReference.Create(this), MethodName = "Callback" });
-            _isOpen = true;
         }
 
         public async Task ConsoleLog(params object[] args)

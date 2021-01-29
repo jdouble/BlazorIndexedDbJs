@@ -99,8 +99,12 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public IDBIndex AddIndex(string name, string keyPath, bool multiEntry = false, bool unique = false)
         {
-            var index = new IDBIndex(this, name, keyPath, multiEntry, unique);
-            _indexes.Add(index);
+            var index = _indexes.First(i => i.Name == name);
+            if (index == null)
+            {
+                index = new IDBIndex(this, name, keyPath, multiEntry, unique);
+                _indexes.Add(index);
+            }
             return index;
         }
 
