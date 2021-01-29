@@ -10,6 +10,9 @@ It tries to implement IndexedDB API with same classes and function names when po
 
 This library was originally a fork from [William Tulloch](https://github.com/wtulloch) library [Blazor.IndexedDB](https://github.com/wtulloch/Blazor.IndexedDB).
 
+
+**ATTENTION Current 2.3.x versions are development versions, it can suffer major changes between minor version, 2.4.x versions will be considered stable.**
+
 ## Functions
 Click on function title to go to oficial documentation
 
