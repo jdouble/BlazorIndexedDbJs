@@ -18,20 +18,9 @@ namespace BlazorIndexedDbJsClientDemo.Data
             KeyPath = "id";
             AutoIncrement = true;
 
-            FirstName = AddIndex(
-                name: "firstName",
-                keyPath: "firstName"
-            );
-
-            FirstName = AddIndex(
-                name: "lastName",
-                keyPath: "lastName"
-            );
-
-            FirstName = AddIndex(
-                name: "fullName",
-                keyPath: "firstName,lastName"
-            );
+            FirstName = AddIndex("firstName", "firstName");
+            LastName = AddIndex("lastName", "lastName");
+            FullName = AddIndex("fullName", "firstName,lastName");
         }
     }
 
