@@ -101,7 +101,7 @@ namespace BlazorIndexedDbJs
         {
             if (_indexes.Any(i => i.Name == name))
             {
-                throw new IDBException($"Index {name} already exists");
+                throw new IDBException($"Store {Name}, Index {name} already exists");
             }
             var index = new IDBIndex(this, name, keyPath, multiEntry, unique);
             _indexes.Add(index);
