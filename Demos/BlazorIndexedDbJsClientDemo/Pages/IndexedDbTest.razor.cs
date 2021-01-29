@@ -8,7 +8,7 @@ using BlazorIndexedDbJs;
 
 namespace BlazorIndexedDbJsClientDemo.Pages
 {
-    public partial class IndexedDbTest: ComponentBase, IDisposable
+    public partial class IndexedDbTest: ComponentBase
     {
         [Inject]
         public TheFactoryDb theFactoryDb {get; set; }
@@ -19,11 +19,6 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         private string FirstNameFilter;
         private string LastNameFilter;
 
-        protected override void OnInitialized()
-        {
-            theFactoryDb.ActionCompleted += OnIndexedDbNotification;
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -33,16 +28,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             }
         }
 
-        public void Dispose()
-        {
-            theFactoryDb.ActionCompleted -= OnIndexedDbNotification;
-        }
-
         private async Task GetRecords(int? count = null)
         {
             try
             {
-                People = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
+                People = await theFactoryDb.Employees.GetAll<Person>(count);
             }
             catch (IDBException e)
             {
@@ -54,7 +44,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
 
         private async Task ClearStore()
         {
-            await theFactoryDb.ClearStore(TheFactoryDb.Employees);
+            await theFactoryDb.Employees.ClearStore();
 
             await GetRecords();
         }
@@ -76,7 +66,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                People = await theFactoryDb.GetAll<Person>(TheFactoryDb.Employees, count);
+                People = await theFactoryDb.Employees.GetAll<Person>(count);
             }
             catch (IDBException e)
             {
@@ -88,10 +78,10 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                var list1 = await theFactoryDb.GetAllKeysFromIndex<int>(TheFactoryDb.Employees, "firstName");
+                var list1 = await theFactoryDb.Employees.FirstName.GetAllKeys<int>();
                 await theFactoryDb.ConsoleLog("GetAllKeysFromIndex", list1);
 
-                var list2 = await theFactoryDb.GetAllKeysFromIndex<string, int>(TheFactoryDb.Employees, "firstName", "person 10");
+                var list2 = await theFactoryDb.Employees.FirstName.GetAllKeys<string, int>("person 10");
                 await theFactoryDb.ConsoleLog("GetAllKeysFromIndex", list2);
             }
             catch (IDBException e)
@@ -104,7 +94,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key, count);
+                People = await theFactoryDb.Employees.GetAll<int, Person>(key, count);
             }
             catch (IDBException e)
             {
@@ -116,7 +106,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, key);
+                People = await theFactoryDb.Employees.GetAll<int, Person>(key);
             }
             catch (IDBException e)
             {
@@ -132,7 +122,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             };
             try
             {
-                People = await theFactoryDb.GetAll<int, Person>(TheFactoryDb.Employees, range, count);
+                People = await theFactoryDb.Employees.GetAll<int, Person>(range, count);
             }
             catch (IDBException e)
             {
@@ -145,7 +135,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             try
             {
                 var filter = $"if (obj.firstName.toLowerCase().includes('{FirstNameFilter.ToLower()}')) return obj;";
-                People = await theFactoryDb.QueryFromIndex<Person>(TheFactoryDb.Employees, "lastName", filter);
+                People = await theFactoryDb.Employees.FirstName.Query<Person>(filter);
             }
             catch (IDBException e)
             {
@@ -157,7 +147,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                CurrentPerson = await theFactoryDb.Get<long, Person>(TheFactoryDb.Employees, id);
+                CurrentPerson = await theFactoryDb.Employees.Get<long, Person>(id);
             }
             catch (IDBException e)
             {
@@ -171,11 +161,11 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             {
                 if (CurrentPerson.Id.HasValue)
                 {
-                    await theFactoryDb.Put(TheFactoryDb.Employees, CurrentPerson);
+                    await theFactoryDb.Employees.Put(CurrentPerson);
                 }
                 else
                 {
-                    await theFactoryDb.Add(TheFactoryDb.Employees, CurrentPerson);
+                    await theFactoryDb.Employees.Add(CurrentPerson);
                 }
 
                 CurrentPerson = new Person();
@@ -202,7 +192,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 list.Add(person);
             }
 
-            await theFactoryDb.BatchAdd<Person>(TheFactoryDb.Employees, list.ToArray());
+            await theFactoryDb.Employees.BatchAdd<Person>(list.ToArray());
 
             await GetRecords();
         }
@@ -211,7 +201,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                await theFactoryDb.Delete(TheFactoryDb.Employees, id);
+                await theFactoryDb.Employees.Delete(id);
             }
             catch (IDBException e)
             {
@@ -225,7 +215,7 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                People = await theFactoryDb.GetAllFromIndex<string, Person>(TheFactoryDb.Employees, "firstName", FirstNameFilter);
+                People = await theFactoryDb.Employees.FirstName.GetAll<string, Person>(FirstNameFilter);
             }
             catch (IDBException e)
             {
@@ -237,19 +227,12 @@ namespace BlazorIndexedDbJsClientDemo.Pages
         {
             try
             {
-                People = await theFactoryDb.GetAllFromIndex<string[], Person>(TheFactoryDb.Employees, "fullName", new string[] { FirstNameFilter, LastNameFilter });
+                People = await theFactoryDb.Employees.FirstName.GetAll<string[], Person>(new string[] { FirstNameFilter, LastNameFilter });
             }
             catch (IDBException e)
             {
                 Message = e.Message;
             }
-        }
-
-        private void OnIndexedDbNotification(object sender, IDBManagerNotificationArgs args)
-        {
-            Message = args.Message;
-
-            StateHasChanged();
         }
     }
 }

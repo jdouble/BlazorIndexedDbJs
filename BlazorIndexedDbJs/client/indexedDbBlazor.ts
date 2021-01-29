@@ -649,16 +649,11 @@ export class IndexedDbManager {
 
     private static addNewStore(upgradeDB: IDBPDatabase, store: IObjectStore) {
         try {
-            let primaryKey = store.primaryKey;
-
-            if (!primaryKey) {
-                primaryKey = { name: 'id', keyPath: 'id', multiEntry: false, unique: false, autoIncrement: true };
-            }
 
             const newStore = upgradeDB.createObjectStore(store.name,
                 {
-                    keyPath: this.getKeyPath(primaryKey.keyPath),
-                    autoIncrement: primaryKey.autoIncrement
+                    keyPath: this.getKeyPath(store.keyPath),
+                    autoIncrement: store.autoIncrement
                 }
             );
 

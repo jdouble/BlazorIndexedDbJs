@@ -11,18 +11,11 @@ export interface IDatabase {
 /**Defines a store to be created in the database. */
 export interface IObjectStore {
     name: string;
-    primaryKey: IIndex;
+    keyPath?: string;
+    autoIncrement: boolean;
     indexes: IIndex[];
 }
 /** */
-
-/**This used when querying a store using a predefined index*/
-export interface IIndexSearch {
-    storeName: string;
-    indexName: string;
-    queryValue: any;
-    allMatching: boolean;
-}
 
 /**Index definition for a store */
 export interface IIndex {
@@ -30,7 +23,6 @@ export interface IIndex {
     keyPath?: string;
     multiEntry: boolean;
     unique: boolean;
-    autoIncrement: boolean;
 }
 
 export interface IInformation {

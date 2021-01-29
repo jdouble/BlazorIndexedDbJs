@@ -1,21 +1,44 @@
-﻿namespace BlazorIndexedDbJs
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BlazorIndexedDbJs
 {
     /// <summary>
     /// Defines an Index for a given object store.
     /// </summary>
     public class IDBIndex
     {
+        private struct DbFunctions
+        {
+            public const string CountFromIndex = "countFromIndex";
+            public const string CountFromIndexByKeyRange = "countFromIndexByKeyRange";
+            public const string GetFromIndex = "getFromIndex";
+            public const string GetAllFromIndex = "getAllFromIndex";
+            public const string GetAllFromIndexByKeyRange = "getAllFromIndexByKeyRange";
+            public const string GetAllFromIndexByArrayKey = "getAllFromIndexByArrayKey";
+            public const string GetKeyFromIndex = "getKeyFromIndex";
+            public const string GetAllKeysFromIndex = "getAllKeysFromIndex";
+            public const string GetAllKeysFromIndexByKeyRange = "getAllKeysFromIndexByKeyRange";
+            public const string GetAllKeysFromIndexByArrayKey = "getAllKeysFromIndexByArrayKey";
+            public const string QueryFromIndex = "queryFromIndex";
+        }
+
+        private IDBManager _idbManager;
+        private IDBObjectStore _idbStore;
+
         /// <summary>
         /// The name of the index.
         /// </summary>
-        public string Name { get; init; } = "";
+        public string Name { get; init; }
 
         /// <summary>
         /// the identifier for the property in the object/record that is saved and is to be indexed.
         /// can be multiple properties separated by comma
         /// if null will default to index name
         /// </summary>
-        public string? KeyPath { get; init; }
+        public string KeyPath { get; init; }
 
         /// <summary>
         /// Affects how the index behaves when the result of evaluating the index's key path yields an array.
@@ -32,9 +55,230 @@
         public bool Unique { get; init; }
 
         /// <summary>
-        /// Only use if you are defining a primary key such as "id"
-        /// If true, the object store has a key generator. Defaults to false.
+        ///
         /// </summary>
-        public bool AutoIncrement { get; init; }
+        /// <param name="idbManager"></param>
+        public IDBIndex(IDBObjectStore idbStore, string name, string keyPath, bool multiEntry, bool unique)
+        {
+            _idbStore = idbStore;
+            _idbManager = idbStore.IDBManager;
+            Name = name;
+            KeyPath = keyPath;
+            MultiEntry = multiEntry;
+            Unique = unique;
+        }
+
+        /// <summary>
+        /// Count records in Index
+        /// </summary>
+        /// <returns></returns>
+        public async Task<int> Count()
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<int>(DbFunctions.CountFromIndex, _idbStore.Name, Name);
+        }
+
+        /// <summary>
+        /// Count records in Index
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<int> Count<TKey>(TKey key)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<int>(DbFunctions.CountFromIndex, _idbStore.Name, Name, key);
+        }
+
+        /// <summary>
+        /// Count records in Index
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<int> Count<TKey>(IDBKeyRange<TKey> key)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<int>(DbFunctions.CountFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
+        }
+
+        /// <summary>
+        /// Returns the first record that matches a query against a given index
+        /// </summary>
+        /// <param name="queryValue"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<TResult> Get<TKey, TResult>(TKey queryValue)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<TResult>(DbFunctions.GetFromIndex, _idbStore.Name, Name, queryValue);
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAll<TResult>(int? count = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndex, _idbStore.Name, Name, null, count);
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAll<TKey, TResult>(TKey key, int? count = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndex, _idbStore.Name, Name, key, count);
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAll<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAll<TKey, TResult>(TKey[] key)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndexByArrayKey, _idbStore.Name, Name, key);
+        }
+
+        /// <summary>
+        /// Returns the first record keys that matches a query against a given index
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="searchQuery">an instance of StoreIndexQuery</param>
+        /// <returns></returns>
+        public async Task<TResult> GetKey<TKey, TResult>(TKey key)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<TResult>(DbFunctions.GetKeyFromIndex, _idbStore.Name, Name, key);
+        }
+
+        /// <summary>
+        /// Gets all of the records keys that match a given query in the specified index.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeys<TResult>(int? count = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndex, _idbStore.Name, Name, null, count);
+        }
+
+        /// <summary>
+        /// Gets all of the records keys that match a given query in the specified index.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey key, int? count = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndex, _idbStore.Name, Name, key, count);
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
+        }
+
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndexByArrayKey, _idbStore.Name, Name, key);
+        }
+
+        /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, null, filter, count, skip);
+        }
+
+        /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
+        }
+
+        /// <summary>
+        /// Gets all of the records using a filter expression
+        /// </summary>
+        /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
+        /// <param name="key"></param>
+        /// <param name="count"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
+        {
+            await _idbManager.EnsureIsOpen();
+            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
+        }
     }
 }

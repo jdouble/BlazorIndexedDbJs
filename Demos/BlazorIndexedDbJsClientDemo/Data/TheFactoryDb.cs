@@ -4,45 +4,47 @@ using BlazorIndexedDbJs;
 
 namespace BlazorIndexedDbJsClientDemo.Data
 {
+    public class Employees: IDBObjectStore
+    {
+        // this is optional, you can access the index using function
+        // store.index("indexname")
+        public IDBIndex FirstName { get; }
+        public IDBIndex LastName { get; }
+        public IDBIndex FullName { get; }
+
+        public Employees(IDBManager manager): base(manager)
+        {
+            Name = "Employees";
+            KeyPath = "id";
+            AutoIncrement = true;
+
+            FirstName = AddIndex(
+                name: "firstName",
+                keyPath: "firstName"
+            );
+
+            FirstName = AddIndex(
+                name: "lastName",
+                keyPath: "lastName"
+            );
+
+            FirstName = AddIndex(
+                name: "fullName",
+                keyPath: "firstName,lastName"
+            );
+        }
+    }
+
     public class TheFactoryDb: IDBManager
     {
-        public TheFactoryDb(IJSRuntime jsRuntime): base(jsRuntime) {}
+        public Employees Employees { get; }
 
-        public const string Employees = "Employees";
-
-        protected override void OnConfiguring(IDBDatabase database)
+        public TheFactoryDb(IJSRuntime jsRuntime): base(jsRuntime)
         {
-            database.Name = "TheFactory";
-            database.Version = 1;
+            Name = "TheFactory";
+            Version = 1;
 
-            database.ObjectStores.Add(new IDBObjectStore
-            {
-                Name = Employees,
-                PrimaryKey = new IDBIndex
-                {
-                    Name = "id",
-                    KeyPath = "id",
-                    AutoIncrement = true
-                },
-                Indexes = new List<IDBIndex>
-                {
-                    new IDBIndex
-                    {
-                        Name="firstName",
-                        KeyPath = "firstName"
-                    },
-                    new IDBIndex
-                    {
-                        Name="lastName",
-                        KeyPath = "lastName"
-                    },
-                    new IDBIndex
-                    {
-                        Name="fullName",
-                        KeyPath = "firstName,lastName"
-                    }
-                }
-            });
+            Employees = new Employees(this);
         }
     }
 }
