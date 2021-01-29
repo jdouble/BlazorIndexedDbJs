@@ -92,7 +92,7 @@ namespace BlazorIndexedDbJs
             var store = _objectStores.Find(s => s.Name == storeName);
             if (store == null)
             {
-                throw new IDBException($"Store ${storeName} does not exists");
+                throw new IDBException($"Store {storeName} does not exists");
             }
             return store;
         }
