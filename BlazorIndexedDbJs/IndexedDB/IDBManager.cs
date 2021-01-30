@@ -15,7 +15,7 @@ namespace BlazorIndexedDbJs
         {
             public const string Open = "open";
             public const string DeleteDatabase = "deleteDatabase";
-            public const string GetDbInfo = "getDbInfo";
+            public const string GetDbSchema = "getDbSchema";
         }
 
         private readonly IJSRuntime _jsRuntime;
@@ -50,7 +50,6 @@ namespace BlazorIndexedDbJs
             var dbdef = IDBSchema.GetDatabaseDef(Name, Version, _objectStores);
             var result = await CallJavascript<string>(DbFunctions.Open, dbdef);
             _isOpen = true;
-            await GetCurrentDbState();
         }
 
         /// <summary>
@@ -64,21 +63,26 @@ namespace BlazorIndexedDbJs
             _isOpen = false;
         }
 
-        private async Task GetCurrentDbState()
+        /// <summary>
+        /// Load dabatabase schema from databaseName
+        /// </summary>
+        /// <returns></returns>
+        public async Task GetLoadDbSchema(string databaseName)
         {
-            await EnsureIsOpen();
-            var result = await CallJavascript<IDBDatabaseInformation>(DbFunctions.GetDbInfo, Name);
-            if (result.Version > Version)
+            var result = await CallJavascript<IDBSchema.IDBDatabaseDef>(DbFunctions.GetDbSchema, databaseName);
+
+            Version = result.Version;
+
+            _objectStores.Clear();
+            foreach (var item in result.ObjectStores)
             {
-                Version = result.Version;
-                var currentStores = ObjectStoreNames;
-                foreach (var storeName in result.ObjectStoreNames)
-                {
-                    if (!currentStores.Contains(storeName))
+                var store = new IDBObjectStore(this)
                     {
-                        _objectStores.Add(new IDBObjectStore(this) { Name = storeName });
-                    }
-                }
+                        Name = item.Name,
+                        KeyPath = item.KeyPath,
+                        AutoIncrement = item.AutoIncrement
+                    };
+                _objectStores.Add(store);
             }
         }
 

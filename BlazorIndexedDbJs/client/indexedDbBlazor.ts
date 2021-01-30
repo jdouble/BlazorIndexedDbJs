@@ -1,6 +1,6 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import { openDB, deleteDB, IDBPDatabase, IDBPObjectStore } from 'idb';
-import { IDatabase, IObjectStore, IInformation } from './InteropInterfaces';
+import { IDatabase, IObjectStore, IIndex } from './InteropInterfaces';
 
 const E_DB_CLOSED: string = "Database is closed";
 
@@ -53,23 +53,38 @@ export class IndexedDbManager {
         }
     }
 
-    public getDbInfo = async (dbName: string) : Promise<IInformation> => {
+    public getDbSchema = async (dbName: string) : Promise<IDatabase> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
-            const currentDb = this.dbInstance;
+            const dbInstance = this.dbInstance;
 
-            let getStoreNames = (list: DOMStringList): string[] => {
-                let names: string[] = [];
-                for (var i = 0; i < list.length; i++) {
-                    names.push(list[i]);
-                }
-                return names;
+            const dbInfo: IDatabase = {
+                name: dbInstance.name,
+                version: dbInstance.version,
+                objectStores: []
             }
-            const dbInfo: IInformation = {
-                version: currentDb.version,
-                objectStoreNames: getStoreNames(currentDb.objectStoreNames)
-            };
+
+            for (let s = 0; s < dbInstance.objectStoreNames.length; s++) {
+                let dbStore = dbInstance.transaction(dbInstance.objectStoreNames[s], 'readonly').store;
+                let objectStore: IObjectStore = {
+                    name: dbStore.name,
+                    keyPath: Array.isArray(dbStore.keyPath) ? dbStore.keyPath.join(',') : dbStore.keyPath,
+                    autoIncrement: dbStore.autoIncrement,
+                    indexes: []
+                }
+                for (let i = 0; i < dbStore.indexNames.length; i++) {
+                    const dbIndex = dbStore.index(dbStore.indexNames[i]);
+                    let index: IIndex = {
+                        name: dbIndex.name,
+                        keyPath: Array.isArray(dbIndex.keyPath) ? dbIndex.keyPath.join(',') : dbIndex.keyPath,
+                        multiEntry: dbIndex.multiEntry,
+                        unique: dbIndex.unique
+                    }
+                    objectStore.indexes.push(index);
+                }
+                dbInfo.objectStores.push(objectStore);
+            }
 
             return dbInfo;
         } catch (error) {
