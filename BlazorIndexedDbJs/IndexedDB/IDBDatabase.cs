@@ -25,7 +25,7 @@ namespace BlazorIndexedDbJs
 
         public string Name { get; init; } = "";
         public int Version { get; set; }
-        public IList<IDBObjectStore> ObjectStores { get { return _objectStores.AsReadOnly(); } }
+        public List<IDBObjectStore> ObjectStores => _objectStores;
 
         public List<string> ObjectStoreNames
         {
@@ -61,6 +61,21 @@ namespace BlazorIndexedDbJs
         {
             var result = await CallJavascript<string>(DbFunctions.DeleteDatabase, Name);
             _isOpen = false;
+        }
+
+        /// <summary>
+        /// get ObjectSore by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public IDBObjectStore ObjectStore(string storeName)
+        {
+            var store = _objectStores.Find(s => s.Name == storeName);
+            if (store == null)
+            {
+                throw new IDBNotFoundError($"Store {storeName} does not exists");
+            }
+            return store;
         }
 
         /// <summary>
@@ -106,21 +121,6 @@ namespace BlazorIndexedDbJs
             _objectStores.Add(objectStore);
             Version += 1;
             await Open();
-        }
-
-        /// <summary>
-        /// get ObjectSore by name
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public IDBObjectStore ObjectStore(string storeName)
-        {
-            var store = _objectStores.Find(s => s.Name == storeName);
-            if (store == null)
-            {
-                throw new IDBNotFoundError($"Store {storeName} does not exists");
-            }
-            return store;
         }
 
         public async Task ConsoleLog(params object[] args)

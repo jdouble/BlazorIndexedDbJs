@@ -61,7 +61,7 @@ namespace BlazorIndexedDbJs
         /// <summary>
         /// Provides a set of additional indexes if required.
         /// </summary>
-        public IList<IDBIndex> Indexes { get { return _indexes.AsReadOnly(); } }
+        public List<IDBIndex> Indexes => _indexes;
 
         /// <summary>
         /// IDMManager
