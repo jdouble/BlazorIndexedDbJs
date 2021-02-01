@@ -25,7 +25,7 @@ namespace BlazorIndexedDbJs
 
         public string Name { get; init; } = "";
         public int Version { get; set; }
-        public List<IDBObjectStore> ObjectStores => _objectStores;
+        public IList<IDBObjectStore> ObjectStores { get { return _objectStores.AsReadOnly(); } }
 
         public List<string> ObjectStoreNames
         {
