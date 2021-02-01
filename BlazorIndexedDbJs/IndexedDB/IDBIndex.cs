@@ -25,7 +25,7 @@ namespace BlazorIndexedDbJs
             public const string QueryFromIndex = "queryFromIndex";
         }
 
-        private IDBManager _idbManager;
+        private IDBDatabase _idbDatabase;
         private IDBObjectStore _idbStore;
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace BlazorIndexedDbJs
             }
 
             _idbStore = idbStore;
-            _idbManager = idbStore.IDBManager;
+            _idbDatabase = idbStore.IDBDatabase;
 
             Name = name;
             KeyPath = keyPath;
@@ -86,8 +86,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> Count()
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<int>(DbFunctions.CountFromIndex, _idbStore.Name, Name);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<int>(DbFunctions.CountFromIndex, _idbStore.Name, Name);
         }
 
         /// <summary>
@@ -98,8 +98,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> Count<TKey>(TKey key)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<int>(DbFunctions.CountFromIndex, _idbStore.Name, Name, key);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<int>(DbFunctions.CountFromIndex, _idbStore.Name, Name, key);
         }
 
         /// <summary>
@@ -110,8 +110,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<int> Count<TKey>(IDBKeyRange<TKey> key)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<int>(DbFunctions.CountFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<int>(DbFunctions.CountFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen);
         }
 
         /// <summary>
@@ -123,8 +123,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<TResult> Get<TKey, TResult>(TKey queryValue)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<TResult>(DbFunctions.GetFromIndex, _idbStore.Name, Name, queryValue);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<TResult>(DbFunctions.GetFromIndex, _idbStore.Name, Name, queryValue);
         }
 
         /// <summary>
@@ -135,8 +135,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TResult>(int? count = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndex, _idbStore.Name, Name, null, count);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndex, _idbStore.Name, Name, null, count);
         }
 
         /// <summary>
@@ -149,8 +149,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TKey, TResult>(TKey key, int? count = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndex, _idbStore.Name, Name, key, count);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndex, _idbStore.Name, Name, key, count);
         }
 
         /// <summary>
@@ -163,8 +163,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
         }
 
         /// <summary>
@@ -176,8 +176,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAll<TKey, TResult>(TKey[] key)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndexByArrayKey, _idbStore.Name, Name, key);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllFromIndexByArrayKey, _idbStore.Name, Name, key);
         }
 
         /// <summary>
@@ -190,8 +190,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<TResult> GetKey<TKey, TResult>(TKey key)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<TResult>(DbFunctions.GetKeyFromIndex, _idbStore.Name, Name, key);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<TResult>(DbFunctions.GetKeyFromIndex, _idbStore.Name, Name, key);
         }
 
         /// <summary>
@@ -202,8 +202,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeys<TResult>(int? count = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndex, _idbStore.Name, Name, null, count);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndex, _idbStore.Name, Name, null, count);
         }
 
         /// <summary>
@@ -216,8 +216,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey key, int? count = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndex, _idbStore.Name, Name, key, count);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndex, _idbStore.Name, Name, key, count);
         }
 
         /// <summary>
@@ -230,8 +230,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndexByKeyRange, _idbStore.Name, Name, key.Lower, key.Upper, key.LowerOpen, key.UpperOpen, count);
         }
 
         /// <summary>
@@ -243,8 +243,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndexByArrayKey, _idbStore.Name, Name, key);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.GetAllKeysFromIndexByArrayKey, _idbStore.Name, Name, key);
         }
 
         /// <summary>
@@ -257,8 +257,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, null, filter, count, skip);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, null, filter, count, skip);
         }
 
         /// <summary>
@@ -273,8 +273,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
         }
 
         /// <summary>
@@ -289,8 +289,8 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
         {
-            await _idbManager.EnsureIsOpen();
-            return await _idbManager.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
         }
     }
 }

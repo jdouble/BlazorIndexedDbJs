@@ -14,7 +14,7 @@ This library was originally a fork from [William Tulloch](https://github.com/wtu
 
 ## API
 
-#### [IDBManager]()
+#### [IDBDatabase](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase)
 
 **Properties**
 
@@ -28,24 +28,29 @@ public string Name
 public int Version
 ```
 
-##### [ObjectStoreNames](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/objectStoreNames)
+##### [objectStoreNames](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/objectStoreNames)
 ```CSharp
 public List<string> ObjectStoreNames
 ```
 
-##### [ObjectStores]()
+##### [objectStores]()
 ```CSharp
 public IList<IDBObjectStore> ObjectStores
 ```
 
+**Constructor**
+```CSharp
+public IDBDatabase(IJSRuntime jsRuntime)
+```
+
 **Methods**
 
-##### [open()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/open)
+##### [open()]()
 ```CSharp
 public async Task Open();
 ```
 
-##### [deleteDatabase()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/deleteDatabase)
+##### [deleteDatabase()]()
 ```CSharp
 public async Task DeleteDatabase();
 ```
@@ -144,7 +149,7 @@ public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key
 public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
 ```
 
-##### [Query](#Advanced query functions)
+##### [Query](#advanced-query-functions)
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);
@@ -220,7 +225,7 @@ public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key
 public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
 ```
 
-##### [Query](#Advanced query functions)
+##### [Query](#advanced-query-functions)
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);

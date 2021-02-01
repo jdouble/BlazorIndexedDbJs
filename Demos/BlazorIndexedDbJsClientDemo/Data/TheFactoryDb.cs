@@ -10,7 +10,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
         public IDBIndex LastName { get; }
         public IDBIndex FullName { get; }
 
-        public Employees(IDBManager manager): base(manager)
+        public Employees(IDBDatabase database): base(database)
         {
             Name = "Employees";
             KeyPath = "id";
@@ -22,7 +22,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
         }
     }
 
-    public class TheFactoryDb: IDBManager
+    public class TheFactoryDb: IDBDatabase
     {
         public Employees Employees { get; }
 

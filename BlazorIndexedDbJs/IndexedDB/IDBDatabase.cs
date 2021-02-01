@@ -9,7 +9,7 @@ namespace BlazorIndexedDbJs
     /// <summary>
     /// Provides functionality for accessing IndexedDB from Blazor application
     /// </summary>
-    public abstract class IDBManager
+    public abstract class IDBDatabase
     {
         private struct DbFunctions
         {
@@ -35,7 +35,7 @@ namespace BlazorIndexedDbJs
             }
         }
 
-        public IDBManager(IJSRuntime jsRuntime)
+        public IDBDatabase(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
         }
