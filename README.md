@@ -14,7 +14,29 @@ This library was originally a fork from [William Tulloch](https://github.com/wtu
 
 ## API
 
-#### [IDBFactory](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory)
+#### [IDBManager]()
+
+**Properties**
+
+##### [name](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/name)
+```CSharp
+public string Name
+```
+
+##### [version](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/version)
+```CSharp
+public int Version
+```
+
+##### [ObjectStoreNames](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/objectStoreNames)
+```CSharp
+public List<string> ObjectStoreNames
+```
+
+##### [ObjectStores]()
+```CSharp
+public IList<IDBObjectStore> ObjectStores
+```
 
 **Methods**
 
@@ -28,16 +50,40 @@ public async Task Open();
 public async Task DeleteDatabase();
 ```
 
-#### [IDBDatabase](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase)
+#### [IDBObjectStore](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore)
 
-**Methods**
+**Properties**
 
-##### [createObjectStore()](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/createObjectStore)
+##### [name](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/name)
 ```CSharp
-public async Task CreateObjectStore(IDBObjectStore objectStore);
+public string Name
 ```
 
-#### [IDBObjectStore](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore)
+##### [keyPath](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/keyPath)
+```CSharp
+public string? KeyPath
+```
+
+##### [autoIncrement](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/autoIncrement)
+```CSharp
+public bool AutoIncrement
+```
+
+##### Indexes
+```CSharp
+public IList<IDBIndex> Indexes
+```
+
+##### IDBManager
+```CSharp
+public IDBManager IDBManager
+```
+
+**Constructor**
+
+```CSharp
+public IDBObjectStore(IDBManager idbManager)
+```
 
 **Methods**
 
@@ -111,27 +157,27 @@ public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange
 
 ##### [name](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/name)
 ```CSharp
-public string Name { get; }
+public string Name
 ```
 
 ##### [keyPath](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/keyPath)
 ```CSharp
-public string KeyPath { get; }
+public string KeyPath
 ```
 
 ##### [multiEntry](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/multiEntry)
 ```CSharp
-public bool MultiEntry { get; }
+public bool MultiEntry
 ```
 
 ##### [unique](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/unique)
 ```CSharp
-public bool Unique { get; }
+public bool Unique
 ```
 
 ##### [objectStore](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/objectStore)
 ```CSharp
-public IDBObjectStore ObjectStore { get; }
+public IDBObjectStore ObjectStore
 ```
 
 **Constructor**

@@ -40,16 +40,6 @@ namespace BlazorIndexedDbJs
         private List<IDBIndex> _indexes = new List<IDBIndex>();
 
         /// <summary>
-        /// Add new ObjectStore definition
-        /// </summary>
-        /// <param name="idbManager"></param>
-        public IDBObjectStore(IDBManager idbManager)
-        {
-            _idbManager = idbManager;
-            _idbManager.ObjectStores.Add(this);
-        }
-
-        /// <summary>
         /// The name for the store
         /// </summary>
         public string Name { get; init; } = "";
@@ -77,6 +67,16 @@ namespace BlazorIndexedDbJs
         /// IDMManager
         /// </summary>
         public IDBManager IDBManager => _idbManager;
+
+        /// <summary>
+        /// Add new ObjectStore definition
+        /// </summary>
+        /// <param name="idbManager"></param>
+        public IDBObjectStore(IDBManager idbManager)
+        {
+            _idbManager = idbManager;
+            _idbManager.ObjectStores.Add(this);
+        }
 
         /// <summary>
         /// Get index by name
