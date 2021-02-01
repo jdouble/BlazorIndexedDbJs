@@ -31,14 +31,14 @@ namespace BlazorIndexedDbJs
         /// <summary>
         /// The name of the index.
         /// </summary>
-        public string Name { get; init; }
+        public string Name { get; }
 
         /// <summary>
         /// the identifier for the property in the object/record that is saved and is to be indexed.
         /// can be multiple properties separated by comma
         /// if null will default to index name
         /// </summary>
-        public string KeyPath { get; init; }
+        public string KeyPath { get; }
 
         /// <summary>
         /// Affects how the index behaves when the result of evaluating the index's key path yields an array.
@@ -46,13 +46,13 @@ namespace BlazorIndexedDbJs
         /// If false, then there is one record for each key that is an array.
         /// </summary>
         /// <value></value>
-        public bool MultiEntry { get; init; }
+        public bool MultiEntry { get; }
 
         /// <summary>
         /// Only use for indexes
         /// If true, this index does not allow duplicate values for a key.
         /// </summary>
-        public bool Unique { get; init; }
+        public bool Unique { get; }
 
         /// <summary>
         /// Only use for indexes

@@ -244,7 +244,7 @@ For blazor server, in `Pages/_Host.cshtml`
 
 ### 3. create a database definition
 
-Although it is not mandatory because ObjectStores and Indexes can be accessed by name, it is preferable to define the database schema using classes, this facilitates refactoring and detecting errors at compile time.
+Although it is not mandatory, because ObjectStores and Indexes can be accessed by name, it is preferable to define the database schema using classes, this facilitates refactoring and detecting errors at compile time.
 
 Without classes
 ```CSharp
@@ -256,7 +256,8 @@ With classes
 var people = await theFactoryDb.Employees.FirstName.GetAll<Person>();
 ```
 
-Schema example:
+Example of schema using classes:
+
 `Data/TheFactoryDb.cs`
 ```CSharp
 using System.Collections.Generic;
