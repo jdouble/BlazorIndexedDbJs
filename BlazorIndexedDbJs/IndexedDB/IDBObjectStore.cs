@@ -88,7 +88,7 @@ namespace BlazorIndexedDbJs
             var index = _indexes.Find(i => i.Name == indexName);
             if (index == null)
             {
-                throw new IDBException($"Store {Name}, index {indexName} does not exists");
+                throw new IDBNotFoundError($"Store {Name}, index {indexName} does not exists");
             }
             return index;
         }

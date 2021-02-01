@@ -55,6 +55,11 @@ public async Task Open();
 public async Task DeleteDatabase();
 ```
 
+##### [objectStore()]()
+```CSharp
+public IDBObjectStore ObjectStore(string storeName)
+```
+
 #### [IDBObjectStore](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore)
 
 **Properties**

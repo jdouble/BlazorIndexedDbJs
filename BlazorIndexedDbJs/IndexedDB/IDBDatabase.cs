@@ -67,7 +67,7 @@ namespace BlazorIndexedDbJs
         /// Load dabatabase schema from databaseName
         /// </summary>
         /// <returns></returns>
-        public async Task GetLoadDbSchema(string databaseName)
+        public async Task LoadSchemaFromDatabase(string databaseName)
         {
             var result = await CallJavascript<IDBSchema.IDBDatabaseDef>(DbFunctions.GetDbSchema, databaseName);
 
@@ -118,7 +118,7 @@ namespace BlazorIndexedDbJs
             var store = _objectStores.Find(s => s.Name == storeName);
             if (store == null)
             {
-                throw new IDBException($"Store {storeName} does not exists");
+                throw new IDBNotFoundError($"Store {storeName} does not exists");
             }
             return store;
         }
