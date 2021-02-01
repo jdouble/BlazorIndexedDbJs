@@ -79,15 +79,15 @@ public bool AutoIncrement
 public IList<IDBIndex> Indexes
 ```
 
-##### [IDBManager]()
+##### [IDBDatabase]()
 ```CSharp
-public IDBManager IDBManager
+public IDBDatabase IDBDatabase
 ```
 
 **Constructor**
 
 ```CSharp
-public IDBObjectStore(IDBManager idbManager)
+public IDBObjectStore(IDBDatabase idbDatabase)
 ```
 
 **Methods**
@@ -323,7 +323,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
         public IDBIndex LastName { get; }
         public IDBIndex FullName { get; }
 
-        public Employees(IDBManager manager): base(manager)
+        public Employees(IDBDatabase database): base(database)
         {
             Name = "Employees";
             KeyPath = "id";
@@ -335,7 +335,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
         }
     }
 
-    public class TheFactoryDb: IDBManager
+    public class TheFactoryDb: IDBDatabase
     {
         public Employees Employees { get; }
 
@@ -350,7 +350,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
 }
 ```
 
-### 4. Add a scoped service IDBManager for each database
+### 4. Add a scoped service for each IDBDatabase
 
 For blazor wasm, in `startup.cs`
 ```CSharp
@@ -399,9 +399,9 @@ For the following examples we are going to assume that we have Person class whic
 And the data store name is "Employees"
 
 
-### Accessing IDBManager
+### Accessing IDBDatabase
 
-To use IndexedDB in a component or page, first inject the IDBManager instance.
+To use IndexedDB in a component or page, first inject the IDBDatabase instance.
 
 ```CSharp
 @inject TheFactoryDb theFactoryDb
