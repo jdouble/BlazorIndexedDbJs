@@ -55,6 +55,12 @@ namespace BlazorIndexedDbJs
         public bool Unique { get; init; }
 
         /// <summary>
+        /// Only use for indexes
+        /// If true, this index does not allow duplicate values for a key.
+        /// </summary>
+        public IDBObjectStore ObjectStore => _idbStore;
+
+        /// <summary>
         ///
         /// </summary>
         /// <param name="idbManager"></param>

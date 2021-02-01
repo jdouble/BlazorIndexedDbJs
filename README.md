@@ -2,7 +2,7 @@
 
 [![Nuget](https://img.shields.io/nuget/v/BlazorIndexedDbJs?style=flat-square)](https://www.nuget.org/packages/BlazorIndexedDbJs/)
 
-# BlazorIndexedDbJs
+# [BlazorIndexedDbJs](https://github.com/kattunga/BlazorIndexedDbJs)
 
 This is a [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) library for accessing IndexedDB, it uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
 
@@ -105,7 +105,34 @@ public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, i
 public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
 ```
 
-#### [IDBIndex`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex)
+#### [IDBIndex](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex)
+
+**Properties**
+
+##### [name](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/name)
+```CSharp
+public string Name { get; }
+```
+
+##### [keyPath](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/keyPath)
+```CSharp
+public string KeyPath { get; }
+```
+
+##### [multiEntry](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/multiEntry)
+```CSharp
+public bool MultiEntry { get; }
+```
+
+##### [unique](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/unique)
+```CSharp
+public bool Unique { get; }
+```
+
+##### [objectStore](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/objectStore)
+```CSharp
+public IDBObjectStore ObjectStore { get; }
+```
 
 **Constructor**
 ```CSharp
