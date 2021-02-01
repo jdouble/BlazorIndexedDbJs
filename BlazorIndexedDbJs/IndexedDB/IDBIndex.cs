@@ -71,13 +71,15 @@ namespace BlazorIndexedDbJs
                 throw new IDBException($"Store {idbStore.Name}, Index {name} already exists");
             }
 
-            _idbStore = idbStore;
-            _idbDatabase = idbStore.IDBDatabase;
-
             Name = name;
             KeyPath = keyPath;
             MultiEntry = multiEntry;
             Unique = unique;
+
+            idbStore.Indexes.Add(this);
+
+            _idbStore = idbStore;
+            _idbDatabase = idbStore.IDBDatabase;
         }
 
         /// <summary>

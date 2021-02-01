@@ -57,7 +57,7 @@ public async Task DeleteDatabase();
 
 ##### [objectStore()]()
 ```CSharp
-public IDBObjectStore ObjectStore(string storeName)
+public IDBObjectStore ObjectStore(string storeName);
 ```
 
 #### [IDBObjectStore](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore)
@@ -92,7 +92,7 @@ public IDBDatabase IDBDatabase
 **Constructor**
 
 ```CSharp
-public IDBObjectStore(IDBDatabase idbDatabase)
+public IDBObjectStore(IDBDatabase idbDatabase);
 ```
 
 **Methods**
@@ -192,7 +192,7 @@ public IDBObjectStore ObjectStore
 
 **Constructor**
 ```CSharp
-public IDBIndex(IDBObjectStore idbStore, string name, string keyPath, bool multiEntry = false, bool unique = false)
+public IDBIndex(IDBObjectStore idbStore, string name, string keyPath, bool multiEntry = false, bool unique = false);
 ```
 
 **Methods**
