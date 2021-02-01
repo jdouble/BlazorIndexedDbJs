@@ -69,12 +69,12 @@ public string? KeyPath
 public bool AutoIncrement
 ```
 
-##### Indexes
+##### [Indexes]()
 ```CSharp
 public IList<IDBIndex> Indexes
 ```
 
-##### IDBManager
+##### [IDBManager]()
 ```CSharp
 public IDBManager IDBManager
 ```
@@ -109,7 +109,7 @@ public async Task Delete<TKey>(TKey key);
 public async Task ClearStore();
 ```
 
-##### Batch (add/put/delete) functions
+##### [Batch (add/put/delete) functions]()
 ```CSharp
 public async Task BatchAdd<TData>(TData[] data);
 public async Task BatchPut<TData>(TData[] data);
@@ -144,7 +144,7 @@ public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key
 public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
 ```
 
-##### Query
+##### [Query](#Advanced query functions)
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);
@@ -220,7 +220,7 @@ public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key
 public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
 ```
 
-##### Query
+##### [Query](#Advanced query functions)
 ```CSharp
 public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
 public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);
