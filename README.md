@@ -330,22 +330,22 @@ To use IndexedDB in a component or page, first inject the IDBManager instance.
 
 ### Getting all records from a store
 ```CSharp
-var people = await theFactoryDb.Store("Employees").GetAll<Person>();
+var people = await theFactoryDb.Employees.GetAll<Person>();
 ```
 
 ### Get one record by Id
 ```CSharp
-var person = await theFactoryDb.Store("Employees").Get<long, Person>(id);
+var person = await theFactoryDb.Employees.Get<long, Person>(id);
 ```
 
 ### getting one record using an index
 ```CSharp
-var person = await theFactoryDb.Store("Employees").Index("firstName").Get<string, Person>("John");
+var person = await theFactoryDb.Employees.FirstName.Get<string, Person>("John");
 ```
 
 ### Getting all records from an index
 ```CSharp
-var people = await theFactoryDb.Store("Employees").Index("firstName").GetAll<string, Person>("John");
+var people = await theFactoryDb.Employees.FirstName.GetAll<string, Person>("John");
 ```
 
 ### Adding a record to an IDBObjectStore
@@ -355,22 +355,22 @@ var newPerson = new Person() {
     LastName = "Doe"
 };
 
-await theFactoryDb.Store("Employees").Add(newPerson);
+await theFactoryDb.Employees.Add(newPerson);
 ```
 
 ### Updating a record
 ```CSharp
-await theFactoryDb.Store("Employees").Put<Person>(recordToUpdate)
+await theFactoryDb.Employees.Put<Person>(recordToUpdate)
 ```
 
 ### Deleting a record
 ```CSharp
-await theFactoryDb.Store("Employees").Delete<int>(id)
+await theFactoryDb.Employees.Delete<int>(id)
 ```
 
 ### Clear all records from a store
 ```CSharp
-await theFactoryDb.Store("Employees").Clear()
+await theFactoryDb.Employees.Clear()
 ```
 
 ### Deleting a Database
