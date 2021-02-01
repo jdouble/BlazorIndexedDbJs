@@ -412,6 +412,12 @@ To use IndexedDB in a component or page, first inject the IDBDatabase instance.
 @inject TheFactoryDb theFactoryDb
 ```
 
+### Open database
+This will create the database if it not exists and will upgrade schema to new version if it is older.
+```CSharp
+await theFactoryDb.DeleteDb()
+```
+
 ### Getting all records from a store
 ```CSharp
 var people = await theFactoryDb.Employees.GetAll<Person>();
@@ -422,7 +428,7 @@ var people = await theFactoryDb.Employees.GetAll<Person>();
 var person = await theFactoryDb.Employees.Get<long, Person>(id);
 ```
 
-### getting one record using an index
+### Getting one record using an index
 ```CSharp
 var person = await theFactoryDb.Employees.FirstName.Get<string, Person>("John");
 ```
@@ -457,7 +463,7 @@ await theFactoryDb.Employees.Delete<int>(id)
 await theFactoryDb.Employees.Clear()
 ```
 
-### Deleting a Database
+### Deleting the database
 ```CSharp
 await theFactoryDb.DeleteDb()
 ```
