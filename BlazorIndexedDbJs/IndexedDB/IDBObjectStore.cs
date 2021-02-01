@@ -94,21 +94,6 @@ namespace BlazorIndexedDbJs
         }
 
         /// <summary>
-        /// Add index to ObjectStore definition
-        /// </summary>
-        /// <returns></returns>
-        public IDBIndex AddIndex(string name, string keyPath, bool multiEntry = false, bool unique = false)
-        {
-            if (_indexes.Any(i => i.Name == name))
-            {
-                throw new IDBException($"Store {Name}, Index {name} already exists");
-            }
-            var index = new IDBIndex(this, name, keyPath, multiEntry, unique);
-            _indexes.Add(index);
-            return index;
-        }
-
-        /// <summary>
         /// Count records in ObjectStore
         /// </summary>
         /// <returns></returns>

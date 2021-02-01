@@ -12,139 +12,162 @@ This library was originally a fork from [William Tulloch](https://github.com/wtu
 
 **ATTENTION Current 2.3.x versions are development versions, it can suffer major changes between minor version, 2.4.x versions will be considered stable.**
 
-## Functions
-Click on function title to go to oficial documentation
+## API
 
-#### IndexedDB API functions
-[`IDBFactory.open()`](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/open)
+#### [IDBFactory](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory)
+
+**Methods**
+
+##### [open()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/open)
 ```CSharp
 public async Task Open();
 ```
 
-[`IDBFactory.deleteDatabase()`](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/deleteDatabase)
+##### [deleteDatabase()](https://developer.mozilla.org/en-us/docs/Web/API/IDBFactory/deleteDatabase)
 ```CSharp
 public async Task DeleteDatabase();
 ```
 
-[`IDBDatabase.createObjectStore()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/createObjectStore)
+#### [IDBDatabase](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase)
+
+**Methods**
+
+##### [createObjectStore()](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/createObjectStore)
 ```CSharp
 public async Task CreateObjectStore(IDBObjectStore objectStore);
 ```
 
-[`IDBObjectStore.add()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add)
+#### [IDBObjectStore](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore)
+
+**Methods**
+
+##### [add()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add)
 ```CSharp
-public async Task Add<TData>(string storeName, TData data);
-public async Task Add<TData, TKey>(string storeName, TData data, TKey key);
+public async Task Add<TData>(TData data);
+public async Task Add<TData, TKey>(TData data, TKey key);
 ```
 
-[`IDBObjectStore.put()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put)
+##### [put()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put)
 ```CSharp
-public async Task Put<TData>(string storeName, TData data);
-public async Task Put<TData, TKey>(string storeName, TData data, TKey key);
+public async Task Put<TData>(TData data);
+public async Task Put<TData, TKey>(TData data, TKey key);
 ```
 
-[`IDBObjectStore.delete()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/delete)
+##### [delete()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/delete)
 ```CSharp
-public async Task Delete<TKey>(string storeName, TKey key);
+public async Task Delete<TKey>(TKey key);
 ```
 
-[`IDBObjectStore.clear()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/clear)
+##### [clear()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/clear)
 ```CSharp
-public async Task ClearStore(string storeName);
+public async Task ClearStore();
 ```
 
-[`IDBObjectStore.count()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/count)
+##### Batch (add/put/delete) functions
 ```CSharp
-public async Task<int> Count(string storeName);
-public async Task<int> Count<TKey>(string storeName, TKey key);
-public async Task<int> Count<TKey>(string storeName, IDBKeyRange<TKey> key);
+public async Task BatchAdd<TData>(TData[] data);
+public async Task BatchPut<TData>(TData[] data);
+public async Task BatchDelete<TKey>(TKey[] key);
 ```
 
-[`IDBObjectStore.get()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/get)
+##### [count()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/count)
 ```CSharp
-public async Task<TResult?> Get<TKey, TResult>(string storeName, TKey key);
+public async Task<int> Count();
+public async Task<int> Count<TKey>(TKey key);
+public async Task<int> Count<TKey>(IDBKeyRange<TKey> key);
 ```
 
-[`IDBObjectStore.getAll()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/getAll)
+##### [get()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/get)
 ```CSharp
-public async Task<List<TResult>> GetAll<TResult>(string storeName, int? count = null);
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey key, int? count = null);
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null);
-public async Task<List<TResult>> GetAll<TKey, TResult>(string storeName, TKey[] key);
+public async Task<TResult?> Get<TKey, TResult>(TKey key);
 ```
 
-[`IDBObjectStore.getAllKeys()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/getAllKeys)
+##### [getAll()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/getAll)
 ```CSharp
-public async Task<List<TResult>> GetAllKeys<TResult>(string storeName, int? count = null);
-public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, TKey key, int? count = null);
-public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, IDBKeyRange<TKey> key, int? count = null);
-public async Task<List<TResult>> GetAllKeys<TKey, TResult>(string storeName, TKey[] key);
+public async Task<List<TResult>> GetAll<TResult>(int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(TKey key, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(TKey[] key);
 ```
 
-[`IDBIndex.count()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/count)
+##### [getAllKeys()](https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/getAllKeys)
 ```CSharp
-public async Task<int> CountFromIndex(string storeName, string indexName);
-public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, TKey key);
-public async Task<int> CountFromIndex<TKey>(string storeName, string indexName, IDBKeyRange<TKey> key);
+public async Task<List<TResult>> GetAllKeys<TResult>(int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey key, int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
 ```
 
-[`IDBIndex.get()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/get)
+##### Query
 ```CSharp
-public async Task<TResult> GetFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue);
+public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
 ```
 
-[`IDBIndex.getAll()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAll)
+#### [IDBIndex`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex)
+
+**Constructor**
 ```CSharp
-public async Task<List<TResult>> GetAllFromIndex<TResult>(string storeName, string indexName, int? count = null);
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null);
-public async Task<List<TResult>> GetAllFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
+public IDBIndex(IDBObjectStore idbStore, string name, string keyPath, bool multiEntry = false, bool unique = false)
 ```
 
-[`IDBIndex.getKey()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getKey)
+**Methods**
+
+##### [count()](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/count)
 ```CSharp
-public async Task<TResult> GetKeyFromIndex<TKey, TResult>(string storeName, string indexName, TKey queryValue);
+public async Task<int> Count(string indexName);
+public async Task<int> Count<TKey>(TKey key);
+public async Task<int> Count<TKey>(IDBKeyRange<TKey> key);
 ```
 
-[`IDBIndex.getAllKeys()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAllKeys)
+##### [get()](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/get)
 ```CSharp
-public async Task<List<TResult>> GetAllKeysFromIndex<TResult>(string storeName, string indexName, int? count = null);
-public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey key, int? count = null);
-public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, IDBKeyRange<TKey> key, int? count = null);
-public async Task<List<TResult>> GetAllKeysFromIndex<TKey, TResult>(string storeName, string indexName, TKey[] key);
+public async Task<TResult> Get<TKey, TResult>(TKey queryValue);
 ```
 
-#### IDBObjectStore Batch functions
+##### [getAll()](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAll)
 ```CSharp
-public async Task BatchAdd<TData>(string storeName, TData[] data);
-public async Task BatchPut<TData>(string storeName, TData[] data);
-public async Task BatchDelete<TKey>(string storeName, TKey[] key);
+public async Task<List<TResult>> GetAll<TResult>(int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(TKey key, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAll<TKey, TResult>(TKey[] key);
 ```
 
-#### Advanced query functions
+##### [getKey()](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getKey)
+```CSharp
+public async Task<TResult> GetKey<TKey, TResult>(TKey queryValue);
+```
+
+##### [getAllKeys()](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex/getAllKeys)
+```CSharp
+public async Task<List<TResult>> GetAllKeys<TResult>(int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey key, int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(IDBKeyRange<TKey> key, int? count = null);
+public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
+```
+
+##### Query
+```CSharp
+public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
+```
+
+## Advanced query functions
 
 The filter expression is the body of a function that receives de parameter `obj` than handle each record of ObjectStore.
-The function return value will be included in the ```List<TResult>``` result and can be one of the following options:
+The function must return a value that will be included in the ```List<TResult>``` result and can be one of the following options:
 * the same object
 * a new object
 * an array of new objects (unwind)
 * undefined (record is not included in result)
-must return true/false to indicate if record should be included in result set.
-
-```CSharp
-public async Task<List<TResult>> Query<TResult>(string storeName, string filter, int? count = null, int? skip = null);
-public async Task<List<TResult>> Query<TKey, TResult>(string storeName, string filter, TKey key, int? count = null, int? skip = null);
-public async Task<List<TResult>> Query<TKey, TResult>(string storeName, string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null);
-
-public async Task<List<TResult>> QueryFromIndex<TResult>(string storeName, string indexName, string filter, int? count = null, int? skip = null);
-public async Task<List<TResult>> QueryFromIndex<TKey, TResult>(string storeName, string indexName, string filter, TKey key, int? count = null, int? skip = null);
-public async Task<List<TResult>> QueryFromIndex<TKey, TResult>(string storeName, string indexName, string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
-```
 
 for example, return a list of objects that contains the world `"per"` in property `firstName` ordered using index `lastName`.
 ```CSharp
-var people = await theFactoryDb.QueryFromIndex<Person>("people", "lastName"
-    "if (obj.firstName.toLowerCase().includes('per')) return obj;");
+List<Person> result = await theFactoryDb.Store("people").Index("lastName").Query<Person>(
+    "if (obj.firstName.toLowerCase().includes('per')) return obj;"
+);
 ```
 
 ## Demo
@@ -194,6 +217,20 @@ For blazor server, in `Pages/_Host.cshtml`
 
 ### 3. create a database definition
 
+Although it is not mandatory because ObjectStores and Indexes can be accessed by name, it is preferable to define the database schema using classes, this facilitates refactoring and detecting errors at compile time.
+
+Without classes
+```CSharp
+var people = await theFactoryDb.Store("Employees").Index("firstName").GetAll<Person>();
+```
+
+With classes
+```CSharp
+var people = await theFactoryDb.Employees.FirstName.GetAll<Person>();
+```
+
+Schema example:
+`Data/TheFactoryDb.cs`
 ```CSharp
 using System.Collections.Generic;
 using Microsoft.JSInterop;
@@ -201,69 +238,40 @@ using BlazorIndexedDbJs;
 
 namespace BlazorIndexedDbJsClientDemo.Data
 {
+    public class Employees: IDBObjectStore
+    {
+        public IDBIndex FirstName { get; }
+        public IDBIndex LastName { get; }
+        public IDBIndex FullName { get; }
+
+        public Employees(IDBManager manager): base(manager)
+        {
+            Name = "Employees";
+            KeyPath = "id";
+            AutoIncrement = true;
+
+            FirstName = new IDBIndex(this, "firstName", "firstName");
+            LastName = new IDBIndex(this, "lastName", "lastName");
+            FullName = new IDBIndex(this, "fullName", "firstName,lastName");
+        }
+    }
+
     public class TheFactoryDb: IDBManager
     {
-        public TheFactoryDb(IJSRuntime jsRuntime): base(jsRuntime) {}
+        public Employees Employees { get; }
 
-        public const string Employees = "Employees";
-
-        protected override void OnConfiguring(IDBDatabase database)
+        public TheFactoryDb(IJSRuntime jsRuntime): base(jsRuntime)
         {
-            database.Name = "TheFactory";
-            database.Version = 1;
+            Name = "TheFactory";
+            Version = 1;
 
-            database.ObjectStores.Add(new IDBObjectStore
-            {
-                Name = Employees,
-                PrimaryKey = new IDBIndex
-                {
-                    Name = "id",
-                    KeyPath = "id",
-                    AutoIncrement = true
-                },
-                Indexes = new List<IDBIndex>
-                {
-                    new IDBIndex
-                    {
-                        Name="firstName",
-                        KeyPath = "firstName",
-                    },
-                    new IDBIndex
-                    {
-                        Name="lastName",
-                        KeyPath = "lastName",
-                    },
-                    new IDBIndex
-                    {
-                        Name="fullname",
-                        KeyPath = "firstName","lastName"
-                    }
-                }
-            });
+            Employees = new Employees(this);
         }
     }
 }
 ```
 
-#### Step 1 - define the database
-To define the database we need to first give it a name and set its version. IndexedDB uses the version to determine whether it needs to update the database. For example if you decide to add a new store then increment the version to ensure that the store is added to the database.
-
-#### Step 2 - Add a store(table) to the database
-In IndexedDB an ObjectStore is equivalent to a table. To create an ObjectStore we create a new ```IDBObjectStore``` and add it to the collection of IDBObjectStores.
-
-Within the ```IDBObjectStore``` we define the name, the primary index key and optionally a set of foreign key indexes if required.
-
-The ```IDBIndex``` is used to define the primary key and any foreign keys that are required. It has the following properties:
-
-* Name - the name of the index
-* KeyPath - the identifier for the property in the saved object/record that is to be indexed
-* Unique - defines whether the key value must be unique
-* AutoIncrement - determines whether the index value should be generated by IndexedDB.
-
-In the example above for the "Employees" store the primary key is explicitly set to the keypath "id" and we want it automatically generated by IndexedDB. In the "Outbox" store the primary key just has ```AutoIncrement = true``` set. IndexedDB is left to handle the rest.
-
-
-### 4. add scoped service IDBManager for database
+### 4. Add a scoped service IDBManager for each database
 
 For blazor wasm, in `startup.cs`
 ```CSharp
@@ -301,7 +309,7 @@ For blazor server, in `program.cs`
 For the following examples we are going to assume that we have Person class which is defined as follows:
 
 ```CSharp
- public class Person
+    public class Person
     {
         public long? Id { get; set; }
         public string FirstName { get; set; }
@@ -314,7 +322,7 @@ And the data store name is "Employees"
 
 ### Accessing IDBManager
 
-To use IndexedDB in a component or page first inject the IDBManager instance.
+To use IndexedDB in a component or page, first inject the IDBManager instance.
 
 ```CSharp
 @inject TheFactoryDb theFactoryDb
@@ -322,22 +330,22 @@ To use IndexedDB in a component or page first inject the IDBManager instance.
 
 ### Getting all records from a store
 ```CSharp
-var people = await theFactoryDb.GetAll<Person>("Employees");
+var people = await theFactoryDb.Store("Employees").GetAll<Person>();
 ```
 
 ### Get one record by Id
 ```CSharp
-var person = await theFactoryDb.Get<long, Person>("Employees", id);
+var person = await theFactoryDb.Store("Employees").Get<long, Person>(id);
 ```
 
 ### getting one record using an index
 ```CSharp
-var person = await theFactoryDb.GetFromIndex<string, Person>("Employees", "firstName", "John");
+var person = await theFactoryDb.Store("Employees").Index("firstName").Get<string, Person>("John");
 ```
 
 ### Getting all records from an index
 ```CSharp
-var people = await theFactoryDb.GetAllFromIndex<string, Person>("Employees", "firstName", "John");
+var people = await theFactoryDb.Store("Employees").Index("firstName").GetAll<string, Person>("John");
 ```
 
 ### Adding a record to an IDBObjectStore
@@ -347,42 +355,25 @@ var newPerson = new Person() {
     LastName = "Doe"
 };
 
-await theFactoryDb.Add("Employees", newPerson);
+await theFactoryDb.Store("Employees").Add(newPerson);
 ```
 
 ### Updating a record
-```
-await theFactoryDb.Put<Person>("Employees", recordToUpdate)
+```CSharp
+await theFactoryDb.Store("Employees").Put<Person>(recordToUpdate)
 ```
 
 ### Deleting a record
-```
-await theFactoryDb.Delete<int>("Employees", id)
+```CSharp
+await theFactoryDb.Store("Employees").Delete<int>(id)
 ```
 
 ### Clear all records from a store
-```
-await theFactoryDb.ClearStore("Employees")
+```CSharp
+await theFactoryDb.Store("Employees").Clear()
 ```
 
 ### Deleting a Database
-```
+```CSharp
 await theFactoryDb.DeleteDb()
 ```
-
-### Adding a new IDBObjectStore dynamically
-
-If you have occasion to what to add a store when the program is up and running. The following
-
-```CSharp
-var newObjectStore = new IDBObjectStore()
-    {
-        Name = NewStoreName,
-        PrimaryKey = new IDBIndex { Name = "id", KeyPath = "id", Auto = true },
-    };
-
-await theFactoryDb.AddNewStore(newObjectStore);
-```
-
-What this will do is, if the store doesn't already exist, is increment the database version number and add the store to the database.
-

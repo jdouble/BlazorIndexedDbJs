@@ -58,10 +58,16 @@ namespace BlazorIndexedDbJs
         ///
         /// </summary>
         /// <param name="idbManager"></param>
-        public IDBIndex(IDBObjectStore idbStore, string name, string keyPath, bool multiEntry, bool unique)
+        public IDBIndex(IDBObjectStore idbStore, string name, string keyPath, bool multiEntry = false, bool unique = false)
         {
+            if (idbStore.Indexes.Any(i => i.Name == name))
+            {
+                throw new IDBException($"Store {idbStore.Name}, Index {name} already exists");
+            }
+
             _idbStore = idbStore;
             _idbManager = idbStore.IDBManager;
+
             Name = name;
             KeyPath = keyPath;
             MultiEntry = multiEntry;

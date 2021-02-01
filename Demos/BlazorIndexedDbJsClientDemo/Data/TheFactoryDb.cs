@@ -6,8 +6,6 @@ namespace BlazorIndexedDbJsClientDemo.Data
 {
     public class Employees: IDBObjectStore
     {
-        // this is optional, you can access the index using function
-        // store.index("indexname")
         public IDBIndex FirstName { get; }
         public IDBIndex LastName { get; }
         public IDBIndex FullName { get; }
@@ -18,9 +16,9 @@ namespace BlazorIndexedDbJsClientDemo.Data
             KeyPath = "id";
             AutoIncrement = true;
 
-            FirstName = AddIndex("firstName", "firstName");
-            LastName = AddIndex("lastName", "lastName");
-            FullName = AddIndex("fullName", "firstName,lastName");
+            FirstName = new IDBIndex(this, "firstName", "firstName");
+            LastName = new IDBIndex(this, "lastName", "lastName");
+            FullName = new IDBIndex(this, "fullName", "firstName,lastName");
         }
     }
 
