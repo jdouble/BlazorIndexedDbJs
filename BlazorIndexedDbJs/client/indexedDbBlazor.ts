@@ -10,7 +10,7 @@ export class IndexedDbManager {
 
     constructor() { }
 
-    public open = async (database: IDatabase): Promise<string> => {
+    public open = async (database: IDatabase): Promise<void> => {
         var upgradeError = "";
 
         try {
@@ -30,14 +30,12 @@ export class IndexedDbManager {
                     },
                 });
             }
-
-            return `IndexedDB ${database.name} opened`;
         } catch (error) {
             throw error.toString()+' '+upgradeError;
         }
     }
 
-    public deleteDatabase = async(dbName: string): Promise<string> => {
+    public deleteDatabase = async(dbName: string): Promise<void> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -46,8 +44,6 @@ export class IndexedDbManager {
             await deleteDB(dbName);
 
             this.dbInstance = undefined;
-
-            return `The database ${dbName} has been deleted`;
         } catch (error) {
             throw `Database ${dbName}, ${error.toString()}`;
         }
@@ -502,7 +498,7 @@ export class IndexedDbManager {
         }
     }
 
-    public add = async (storeName: string, data: any, key?: any): Promise<string> => {
+    public add = async (storeName: string, data: any, key?: any): Promise<any> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -514,13 +510,13 @@ export class IndexedDbManager {
 
             await tx.done;
 
-            return `Added new record with id ${result}`;
+            return result;
         } catch (error) {
             throw `Store ${storeName}, ${error.toString()}`;
         }
     }
 
-    public put = async (storeName: string, data: any, key?: any): Promise<string> => {
+    public put = async (storeName: string, data: any, key?: any): Promise<any> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -530,13 +526,13 @@ export class IndexedDbManager {
 
             await tx.done;
 
-            return `updated record with id ${result}`;
+            return result;
         } catch (error) {
             throw `Store ${storeName}, ${error.toString()}`;
         }
     }
 
-    public delete = async (storeName: string, id: any): Promise<string> => {
+    public delete = async (storeName: string, id: any): Promise<void> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -545,51 +541,53 @@ export class IndexedDbManager {
             await tx.store.delete(id);
 
             await tx.done;
-
-            return `Record with id: ${id} deleted`;
         } catch (error) {
             throw `Store ${storeName}, ${error.toString()}`;
         }
     }
 
-    public batchAdd = async (storeName: string, data: any[]): Promise<string> => {
+    public batchAdd = async (storeName: string, data: any[]): Promise<any[]> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
+
+            let result: any[] = [];
 
             data.forEach(async element => {
                 let item = this.checkForKeyPath(tx.store, element);
-                await tx.store.add(item);
+                result.push(await tx.store.add(item));
             });
 
             await tx.done;
 
-            return `Added ${data.length} records`;
+            return result;
         } catch (error) {
             throw `Store ${storeName}, ${error.toString()}`;
         }
     }
 
-    public batchPut = async (storeName: string, data: any[]): Promise<string> => {
+    public batchPut = async (storeName: string, data: any[]): Promise<any[]> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
             const tx = this.dbInstance.transaction(storeName, 'readwrite');
 
+            let result: any[] = [];
+
             data.forEach(async element => {
-                await tx.store.put(element);
+                result.push(await tx.store.put(element));
             });
 
             await tx.done;
 
-            return `updated ${data.length} records`;
+            return result;
         } catch (error) {
             throw `Store ${storeName}, ${error.toString()}`;
         }
     }
 
-    public batchDelete = async (storeName: string, ids: any[]): Promise<string> => {
+    public batchDelete = async (storeName: string, ids: any[]): Promise<void> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -600,14 +598,12 @@ export class IndexedDbManager {
             });
 
             await tx.done;
-
-            return `Deleted ${ids.length} records`;
         } catch (error) {
             throw `Store ${storeName}, ${error.toString()}`;
         }
     }
 
-    public clearStore = async (storeName: string): Promise<string> => {
+    public clearStore = async (storeName: string): Promise<void> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -616,8 +612,6 @@ export class IndexedDbManager {
             await tx.store.clear();
 
             await tx.done;
-
-            return `Store ${storeName} cleared`;
         } catch (error) {
             throw `Store ${storeName}, ${error.toString()}`;
         }

@@ -303,37 +303,51 @@ namespace BlazorIndexedDbJs
         /// Adds a new record/object to the specified ObjectStore
         /// </summary>
         /// <param name="data"></param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TData"></typeparam>
         /// <returns></returns>
-        public async Task Add<TData>(TData data)
+        public async Task Add<TData>(TData data) where TData : notnull
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.Add, Name, data);
+            await _idbDatabase.CallJavascript(DbFunctions.Add, Name, data);
         }
 
         /// <summary>
         /// Adds a new record/object to the specified ObjectStore
         /// </summary>
-        /// <param name="storeName"></param>
         /// <param name="data"></param>
         /// <typeparam name="TData"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
-        public async Task Add<TData, TKey>(TData data, TKey key)
+        public async Task<TKey> Add<TData, TKey>(TData data)
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.Add, Name, data, key);
+            return await _idbDatabase.CallJavascript<TKey>(DbFunctions.Add, Name, data);
+        }
+
+        /// <summary>
+        /// Adds a new record/object to the specified ObjectStore
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="key"></param>
+        /// <typeparam name="TData"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<TKey> Add<TData, TKey>(TData data, TKey key)
+        {
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<TKey>(DbFunctions.Add, Name, data, key);
         }
 
         /// <summary>
         /// Updates and existing record
         /// </summary>
         /// <param name="data"></param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TData"></typeparam>
         /// <returns></returns>
-        public async Task Put<TData>(TData data)
+        public async Task Put<TData>(TData data) where TData : notnull
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.Put, Name, data);
+            await _idbDatabase.CallJavascript(DbFunctions.Put, Name, data);
         }
 
         /// <summary>
@@ -344,10 +358,24 @@ namespace BlazorIndexedDbJs
         /// <typeparam name="TData"></typeparam>
         /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
-        public async Task Put<TData, TKey>(TData data, TKey key)
+        public async Task<TKey> Put<TData, TKey>(TData data)
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.Put, Name, data, key);
+            return await _idbDatabase.CallJavascript<TKey>(DbFunctions.Put, Name, data);
+        }
+
+        /// <summary>
+        /// Updates and existing record
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="key"></param>
+        /// <typeparam name="TData"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<TKey> Put<TData, TKey>(TData data, TKey key)
+        {
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<TKey>(DbFunctions.Put, Name, data, key);
         }
 
         /// <summary>
@@ -356,26 +384,39 @@ namespace BlazorIndexedDbJs
         /// <typeparam name="TInput"></typeparam>
         /// <param name="key"></param>
         /// <returns></returns>
-        public async Task Delete<TKey>(TKey key)
+        public async Task Delete<TKey>(TKey key) where TKey : notnull
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.Delete, Name, key);
+            await _idbDatabase.CallJavascript(DbFunctions.Delete, Name, key);
         }
 
         /// <summary>
         /// Add an array of new record/object in one transaction to the specified store
         /// </summary>
         /// <param name="data"></param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TData"></typeparam>
         /// <returns></returns>
         public async Task BatchAdd<TData>(TData[] data)
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.BatchAdd, Name, data);
+            await _idbDatabase.CallJavascript(DbFunctions.BatchAdd, Name, data);
         }
 
         /// <summary>
-        ///
+        /// Add an array of new record/object in one transaction to the specified store
+        /// </summary>
+        /// <param name="data"></param>
+        /// <typeparam name="TData"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
+        public async Task<TKey[]> BatchAdd<TData, TKey>(TData[] data)
+        {
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<TKey[]>(DbFunctions.BatchAdd, Name, data);
+        }
+
+        /// <summary>
+        /// Put an array of new record/object in one transaction to the specified store
         /// </summary>
         /// <param name="data"></param>
         /// <typeparam name="TData"></typeparam>
@@ -383,7 +424,19 @@ namespace BlazorIndexedDbJs
         public async Task BatchPut<TData>(TData[] data)
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.BatchPut, Name, data);
+            await _idbDatabase.CallJavascript(DbFunctions.BatchPut, Name, data);
+        }
+
+        /// <summary>
+        /// Put an array of new record/object in one transaction to the specified store
+        /// </summary>
+        /// <param name="data"></param>
+        /// <typeparam name="TData"></typeparam>
+        /// <returns></returns>
+        public async Task<TKey[]> BatchPut<TData, TKey>(TData[] data)
+        {
+            await _idbDatabase.EnsureIsOpen();
+            return await _idbDatabase.CallJavascript<TKey[]>(DbFunctions.BatchPut, Name, data);
         }
 
         /// <summary>
@@ -392,10 +445,10 @@ namespace BlazorIndexedDbJs
         /// <param name="id"></param>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
-        public async Task BatchDelete<TInput>(TInput[] ids)
+        public async Task BatchDelete<TKey>(TKey[] ids)
         {
             await _idbDatabase.EnsureIsOpen();
-            var result = await _idbDatabase.CallJavascript<string>(DbFunctions.BatchDelete, Name, ids);
+            await _idbDatabase.CallJavascript(DbFunctions.BatchDelete, Name, ids);
         }
 
         /// <summary>

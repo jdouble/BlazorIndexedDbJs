@@ -48,7 +48,7 @@ namespace BlazorIndexedDbJs
         public async Task Open()
         {
             var dbdef = IDBSchema.GetDatabaseDef(Name, Version, _objectStores);
-            var result = await CallJavascript<string>(DbFunctions.Open, dbdef);
+            await CallJavascript(DbFunctions.Open, dbdef);
             _isOpen = true;
         }
 
@@ -59,7 +59,7 @@ namespace BlazorIndexedDbJs
         /// <returns></returns>
         public async Task DeleteDatabase()
         {
-            var result = await CallJavascript<string>(DbFunctions.DeleteDatabase, Name);
+            await CallJavascript(DbFunctions.DeleteDatabase, Name);
             _isOpen = false;
         }
 
@@ -128,6 +128,18 @@ namespace BlazorIndexedDbJs
             try
             {
                 await _jsRuntime.InvokeVoidAsync("console.log", args);
+            }
+            catch (JSException e)
+            {
+                throw new IDBException(e.Message);
+            }
+        }
+
+        public async Task CallJavascript(string functionName, params object[] args)
+        {
+            try
+            {
+                await _jsRuntime.InvokeVoidAsync($"{InteropPrefix}.{functionName}", args);
             }
             catch (JSException e)
             {

@@ -161,11 +161,13 @@ namespace BlazorIndexedDbJsClientDemo.Pages
             {
                 if (CurrentPerson.Id.HasValue)
                 {
-                    await theFactoryDb.Employees.Put(CurrentPerson);
+                    var key = await theFactoryDb.Employees.Put<Person, int>(CurrentPerson);
+                    await theFactoryDb.ConsoleLog($"key updated: ", key);
                 }
                 else
                 {
-                    await theFactoryDb.Employees.Add(CurrentPerson);
+                    var key = await theFactoryDb.Employees.Add<Person, int>(CurrentPerson);
+                    await theFactoryDb.ConsoleLog($"key added: ", key);
                 }
 
                 CurrentPerson = new Person();
@@ -192,7 +194,8 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 list.Add(person);
             }
 
-            await theFactoryDb.Employees.BatchAdd<Person>(list.ToArray());
+            var keys = await theFactoryDb.Employees.BatchAdd<Person, int>(list.ToArray());
+            await theFactoryDb.ConsoleLog($"keys added: ", keys);
 
             await GetRecords();
         }
