@@ -415,7 +415,7 @@ To use IndexedDB in a component or page, first inject the IDBDatabase instance.
 ### Open database
 This will create the database if it not exists and will upgrade schema to new version if it is older.
 ```CSharp
-await theFactoryDb.DeleteDb()
+await theFactoryDb.Open()
 ```
 
 ### Getting all records from a store
