@@ -240,7 +240,7 @@ public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange
 ## Advanced query functions
 
 The filter expression is the body of a function that receives de parameter `obj` than handle each record of ObjectStore.
-The function must return a value that will be included in the ```List<TResult>``` result and can be one of the following options:
+The function must return an Object of type TResult, that will be included in the ```List<TResult>``` result and can be one of the following options:
 * the same object
 * a new object
 * an array of new objects (unwind)
