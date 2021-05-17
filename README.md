@@ -357,7 +357,7 @@ namespace BlazorIndexedDbJsClientDemo.Data
 
 ### 4. Add a scoped service for each IDBDatabase
 
-For blazor wasm, in `startup.cs`
+For blazor wasm, in `program.cs`
 ```CSharp
     public class Program
     {
@@ -375,7 +375,7 @@ For blazor wasm, in `startup.cs`
     }
 ```
 
-For blazor server, in `program.cs`
+For blazor server, in `startup.cs`
 ```CSharp
         public void ConfigureServices(IServiceCollection services)
         {
