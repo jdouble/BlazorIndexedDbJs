@@ -156,9 +156,9 @@ public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
 
 ##### [Query](#advanced-query-functions)
 ```CSharp
-public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
-public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);
-public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
+public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next)
 ```
 
 #### [IDBIndex](https://developer.mozilla.org/en-US/docs/Web/API/IDBIndex)
@@ -232,9 +232,22 @@ public async Task<List<TResult>> GetAllKeys<TKey, TResult>(TKey[] key);
 
 ##### [Query](#advanced-query-functions)
 ```CSharp
-public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null);
-public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null);
-public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
+public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next);
+public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next)
+```
+
+#### [IDBCursorDirection](https://developer.mozilla.org/en-US/docs/Web/API/IDBCursor/direction)
+
+##### [Enum](https://w3c.github.io/IndexedDB/#enumdef-idbcursordirection)
+
+```CSharp
+{
+Next
+NextUnique,
+Previous,
+PreviousUnique
+}
 ```
 
 ## Advanced query functions
