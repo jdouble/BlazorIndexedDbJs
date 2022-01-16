@@ -239,7 +239,7 @@ export class IndexedDbManager {
         }
     }
 
-    public query = async (storeName: string, key: any, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
+    public query = async (storeName: string, key: any, filter: string, count: number = 0, skip: number = 0, direction: IDBCursorDirection = "next"): Promise<any> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -256,7 +256,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let cursor = await tx.store.openCursor(key ?? undefined);
+            let cursor = await tx.store.openCursor(key ?? undefined, direction);
             while (cursor) {
                 if (!cursor) {
                     return;
@@ -445,7 +445,7 @@ export class IndexedDbManager {
         }
     }
 
-    public queryFromIndex = async (storeName: string, indexName: string, key: any, filter: string, count: number = 0, skip: number = 0): Promise<any> => {
+    public queryFromIndex = async (storeName: string, indexName: string, key: any, filter: string, count: number = 0, skip: number = 0, direction: IDBCursorDirection = "next"): Promise<any> => {
         try {
             if (!this.dbInstance) throw E_DB_CLOSED;
 
@@ -462,7 +462,7 @@ export class IndexedDbManager {
 
             const tx = this.dbInstance.transaction(storeName, 'readonly');
 
-            let cursor = await tx.store.index(indexName).openCursor(key ?? undefined);
+            let cursor = await tx.store.index(indexName).openCursor(key ?? undefined, direction);
             while (cursor) {
                 if (!cursor) {
                     return;

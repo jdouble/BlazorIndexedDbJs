@@ -255,12 +255,14 @@ namespace BlazorIndexedDbJs
         /// <param name="filter">expresion that evaluates to true/false, each record es passed to "obj" parameter</param>
         /// <param name="count"></param>
         /// <param name="skip"></param>
+        /// <param name="cursorDirection">controls the sort order of the result list</param>
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null)
+        public async Task<List<TResult>> Query<TResult>(string filter, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next)
         {
             await _idbDatabase.EnsureIsOpen();
-            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, null, filter, count, skip);
+            var direction = DirectionAdapter(cursorDirection);
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, null, filter, count, skip, direction);
         }
 
         /// <summary>
@@ -270,13 +272,15 @@ namespace BlazorIndexedDbJs
         /// <param name="key"></param>
         /// <param name="count"></param>
         /// <param name="skip"></param>
+        /// <param name="cursorDirection">controls the sort order of the result list</param>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null)
+        public async Task<List<TResult>> Query<TKey, TResult>(string filter, TKey key, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next)
         {
             await _idbDatabase.EnsureIsOpen();
-            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
+            var direction = DirectionAdapter(cursorDirection);
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip, direction);
         }
 
         /// <summary>
@@ -286,13 +290,39 @@ namespace BlazorIndexedDbJs
         /// <param name="key"></param>
         /// <param name="count"></param>
         /// <param name="skip"></param>
+        /// <param name="cursorDirection">controls the sort order of the result list</param>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null)
+        public async Task<List<TResult>> Query<TKey, TResult>(string filter, IDBKeyRange<TKey> key, int? count = null, int? skip = null, IDBCursorDirection? cursorDirection = IDBCursorDirection.Next)
         {
             await _idbDatabase.EnsureIsOpen();
-            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip);
+            var direction = DirectionAdapter(cursorDirection);
+            return await _idbDatabase.CallJavascript<List<TResult>>(DbFunctions.QueryFromIndex, _idbStore.Name, Name, key, filter, count, skip, direction);
+        }
+
+        public static string DirectionAdapter(IDBCursorDirection? sortDirection)
+        {
+            if (!sortDirection.HasValue) return "next";
+
+            var result = "next";
+            switch (sortDirection)
+            {
+                case IDBCursorDirection.Next:
+                    result = "next";
+                    break;
+                case IDBCursorDirection.NextUnique:
+                    result = "nextunique";
+                    break;
+                case IDBCursorDirection.Previous:
+                    result = "prev";
+                    break;
+                case IDBCursorDirection.PreviousUnique:
+                    result = "prevunique";
+                    break;
+            }
+
+            return result;
         }
     }
 }

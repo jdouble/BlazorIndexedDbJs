@@ -142,6 +142,31 @@ namespace BlazorIndexedDbJsClientDemo.Pages
                 Message = e.Message;
             }
         }
+        private async Task GetByFilterDescensing()
+        {
+            try
+            {
+                var filter = $"if (obj.firstName.toLowerCase().includes('{FirstNameFilter.ToLower()}')) return obj;";
+                People = await theFactoryDb.Employees.FirstName.Query<Person>(filter, null, null, IDBCursorDirection.Previous);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
+        }
+
+        private async Task StoreFilterDescensing()
+        {
+            try
+            {
+                var filter = $"if (obj.firstName.toLowerCase().includes('{FirstNameFilter.ToLower()}')) return obj;";
+                People = await theFactoryDb.Employees.Query<Person>(filter, null, null, IDBCursorDirection.Previous);
+            }
+            catch (IDBException e)
+            {
+                Message = e.Message;
+            }
+        }
 
         private async Task EditPerson(long id)
         {
